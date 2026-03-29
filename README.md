@@ -1,36 +1,194 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SoftBridge Accounts
 
-## Getting Started
+Unified account portal for SoftBridge Labs, built with Next.js App Router, React 19, and Firebase Auth.
 
-First, run the development server:
+## Local Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env.local` file with the required public values:
 
-## Learn More
+```bash
+NEXT_PUBLIC_API_BASE_URL=https://api.softbridgelabs.in
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
+```
 
-To learn more about Next.js, take a look at the following resources:
+## API Reference
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Base URL: `https://api.softbridgelabs.in`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 1. Register User
 
-## Deploy on Vercel
+Endpoint: `POST /softbridge/register`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Body:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```json
+{
+	"email": "user@example.com",
+	"password": "strong-password",
+	"name": "John Doe"
+}
+```
+
+### 2. Login User
+
+Endpoint: `POST /softbridge/login`
+
+Body:
+
+```json
+{
+	"email": "user@example.com",
+	"password": "strong-password"
+}
+```
+
+### 3. Forgot Password
+
+Triggers a password reset email via Firebase.
+
+Endpoint: `POST /softbridge/forgot-password`
+
+Body:
+
+```json
+{
+	"email": "user@example.com"
+}
+```
+
+### 4. Security Alerts (Email)
+
+Send custom security alerts to users using the Resend service.
+
+Endpoint: `POST /softbridge/alert-email`
+
+Body:
+
+```json
+{
+	"email": "user@example.com",
+	"type": "login",
+	"details": "New login from Chrome on Windows"
+}
+```
+
+Supported types: `login`, `password_change`, `premium_activated`.
+
+### 5. Premium Membership Activation
+
+Activates premium status for a user for a specific duration.
+
+Endpoint: `POST /softbridge/premium/activate`
+
+Body:
+
+```json
+{
+	"uid": "firebase_uid",
+	"durationDays": 30
+}
+```
+
+### 6. Public Profile
+
+Fetch restricted profile details for any user.
+
+Endpoint: `GET /softbridge/profile/:uid`
+
+### 7. Account Management (Full)
+
+Initializes or performs a full update of the SoftBridge account.
+
+Endpoint: `POST /softbridge/account`
+
+Body:
+
+```json
+{
+	"uid": "firebase_uid",
+	"name": "John Doe",
+	"email": "john@example.com",
+	"phone": "+1234567890",
+	"avatar_url": "https://...",
+	"birthday": "1990-01-01",
+	"gender": "Male",
+	"bio": "Developer at SoftBridge Labs"
+}
+```
+
+### 8. Partial Profile Update
+
+Updates specific fields without affecting others.
+
+Endpoint: `PATCH /softbridge/account`
+
+Body:
+
+```json
+{
+	"uid": "firebase_uid",
+	"bio": "Updated bio text"
+}
+```
+
+### 9. Get Account Status and Help
+
+Fetches the profile info, premium status, and optional setup guidance.
+
+Endpoint: `GET /softbridge/account`
+
+Query parameters:
+
+- `uid` (required): User unique ID.
+- `setupHelp` (optional): Set to `true` to receive onboarding steps.
+
+### 10. Security and Activity
+
+Review recent actions performed on your account.
+
+Endpoint: `GET /softbridge/activity`
+
+Query parameter: `uid`
+
+### 11. Auth Redirect Utility
+
+A helper route that redirects any hit to the unified account dashboard.
+
+Endpoint: `GET /softbridge/auth-redirect`
+
+Redirects to: `https://account.softbridgelabs.in`
+
+### 12. Data and Privacy (Delete Account)
+
+Permanently removes account data from SQL systems.
+
+Endpoint: `DELETE /softbridge/account`
+
+Body:
+
+```json
+{
+	"uid": "firebase_uid"
+}
+```
+
+## Scripts
+
+- `npm run dev` - start local development server
+- `npm run build` - build for production
+- `npm run start` - run production server
+- `npm run lint` - run ESLint

@@ -7,7 +7,7 @@ import { softbridgeApi } from './api';
 
 interface AuthContextType {
   user: User | null;
-  profile: any | null;
+  profile: Record<string, unknown> | null;
   loading: boolean;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshProfile = useCallback(async () => {
@@ -31,12 +31,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
            setProfile(data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Broad capture for missing or corrupted backend nodes
-        const isMissing = err.message && (
-            err.message.toLowerCase().includes('not found') || 
-            err.message.toLowerCase().includes('server error') ||
-            err.message.toLowerCase().includes('account not found')
+        const message = err instanceof Error ? err.message.toLowerCase() : '';
+        const isMissing = message && (
+            message.includes('not found') || 
+            message.includes('server error') ||
+            message.includes('account not found')
         );
 
         if (isMissing) {
@@ -48,7 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setProfile(pubData.user);
                 return;
              }
-          } catch (pubErr) {
+           } catch {
              console.warn("Direct identity node retrieval failed.");
           }
 
@@ -68,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                const finalData = await softbridgeApi.getAccount(uid);
                setProfile(finalData.user || finalData);
             }
-          } catch (regErr: any) {
+          } catch {
             console.error("Identity Node synchronization stalled.");
           }
         } else {
@@ -81,17 +82,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
+    const bootSafetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 4500);
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
+
+      // Unblock UI as soon as auth state is known; profile can hydrate in background.
+      setLoading(false);
+
       if (firebaseUser) {
-        await refreshProfile();
+        void refreshProfile();
       } else {
         setProfile(null);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      clearTimeout(bootSafetyTimer);
+      unsubscribe();
+    };
   }, [refreshProfile]);
 
   const logout = async () => {
