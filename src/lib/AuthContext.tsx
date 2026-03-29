@@ -121,6 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await signOut(auth);
     setUser(null);
     setProfile(null);
+    window.location.href = 'https://softbridgelabs.in';
   };
 
   return (

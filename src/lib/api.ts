@@ -177,6 +177,8 @@ export const softbridgeApi = {
     const data = await apiFetch(`/softbridge/activity?uid=${uid}`, { method: 'GET' });
     return data.logs || data;
   },
+  addActivity: (data: { uid: string; action: string }) => 
+    apiFetch('/softbridge/activity', { method: 'POST', body: JSON.stringify(data) }),
 
   // 12. Delete Account
   deleteAccount: (uid: string) => 
@@ -185,6 +187,20 @@ export const softbridgeApi = {
   // 13. User Custom Account Deletion Period
   updateUserDeletionPolicy: (data: { uid: string; inactivityDays: number | null }) => 
     apiFetch('/softbridge/account/deletion-policy', { method: 'PATCH', body: JSON.stringify(data) }),
+
+  // 16. Audit Log (Custom Events)
+  createAuditLog: (data: { uid: string; event: string; source: string; details?: any }) => 
+    apiFetch('/softbridge/audit-log', { method: 'POST', body: JSON.stringify(data) }),
+  getAuditLogs: (params: { uid?: string; event?: string; limit?: number; offset?: number }) => {
+    const query = new URLSearchParams(params as any).toString();
+    return apiFetch(`/softbridge/audit-log?${query}`, { method: 'GET' });
+  },
+
+  // 17. Email OTP (Post Login)
+  sendOTP: (data: { uid: string; email: string; purpose: string }) => 
+    apiFetch('/softbridge/email-otp/send', { method: 'POST', body: JSON.stringify(data) }),
+  verifyOTP: (data: { email: string; otp: string; purpose: string }) => 
+    apiFetch('/softbridge/email-otp/verify', { method: 'POST', body: JSON.stringify(data) }),
 
   // Auth Action Helpers
   confirmPasswordReset: (oobCode: string, newPassword: string) => 

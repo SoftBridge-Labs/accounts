@@ -41,15 +41,18 @@ export default function LoginPage() {
     try {
       const meta = await getBrowserMetadata();
       
-      // If persistence fails (some mobile/private contexts), continue with default session persistence.
       await setPersistence(auth, browserLocalPersistence).catch(() => null);
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
 
-      // Track activity in SoftBridge Audit Nodes
+      // Log activity: Login event
       try {
-        await softbridgeApi.login({ 
-          email, 
-          meta: `IP: ${meta.ip} | Device: ${meta.device} | UA: ${meta.ua}` 
+        await softbridgeApi.addActivity({ uid, action: 'login' }).catch(() => null);
+        await softbridgeApi.createAuditLog({ 
+          uid, 
+          event: 'login_success', 
+          source: 'softbridge',
+          details: { device: meta.device, location: meta.location }
         }).catch(() => null);
       } catch (e) {}
 
@@ -82,7 +85,7 @@ export default function LoginPage() {
       <div className="auth-orb one" />
       <div className="auth-orb two" />
       
-      {showSuperLoader && <SuperLoader message="Signing you in securely" onComplete={() => router.replace('/dashboard')} />}
+      {showSuperLoader && <SuperLoader message="Finalizing secure session" onComplete={() => router.replace('/dashboard')} />}
 
       <div className="container" style={{ maxWidth: '480px', position: 'relative', zIndex: 1 }}>
         <div className="auth-card-mobile animate-spring" style={{ padding: '3.5rem 2.5rem', background: '#fff' }}>

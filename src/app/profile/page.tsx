@@ -184,6 +184,21 @@ export default function ProfilePage() {
       const meta = await getBrowserMetadata();
       const changeLog = changes.length > 0 ? changes.join('\n- ') : 'No data parameters modified.';
 
+      // Log activity to SoftBridge Audit Nodes
+      try {
+        await softbridgeApi.addActivity({ 
+          uid: user.uid, 
+          action: 'identity_synchronized'
+        }).catch(() => null);
+        
+        await softbridgeApi.createAuditLog({
+          uid: user.uid,
+          event: 'profile_updated',
+          source: 'softbridge',
+          details: { changes: changes.length }
+        }).catch(() => null);
+      } catch (e) {}
+
       try {
         await softbridgeApi.sendAlert({
           email: user.email!,

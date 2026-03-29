@@ -37,6 +37,9 @@ export default function SecurityPage() {
   const [showRotationModal, setShowRotationModal] = useState(false);
   const [rotating, setRotating] = useState(false);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [showOTPStep, setShowOTPStep] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -86,26 +89,61 @@ export default function SecurityPage() {
   if (!user) return null;
 
   const handleDeleteAccount = async () => {
+    if (!user) return;
     setDeleting(true);
+    setOtpError('');
     try {
-      await softbridgeApi.deleteAccount(user.uid);
-      try {
-        await deleteUser(user);
-      } catch (fbErr: any) {
-        if (fbErr.code === 'auth/requires-recent-login') {
-            alert("Security Node Timeout: Please re-authenticate your session before purging your identity permanently.");
+      if (!showOTPStep) {
+         // Step 1: Trigger OTP
+         await softbridgeApi.createAuditLog({ 
+            uid: user.uid, 
+            event: 'identity_purge_otp_requested', 
+            source: 'softbridge',
+            details: { intent: 'manual_erasure' }
+         }).catch(() => null);
+
+         const res = await softbridgeApi.sendOTP({ uid: user.uid, email: user.email!, purpose: 'deletion' });
+         if (res.success) {
+            setShowOTPStep(true);
+         } else {
+            alert(res.message || "OTP transmission failed.");
+         }
+      } else {
+         // Step 2: Verify OTP and Purge
+         if (!otp || otp.length < 6) {
+            setOtpError("Identity verification node incomplete.");
             setDeleting(false);
-            setShowDeleteModal(false);
             return;
-        }
+         }
+
+         const verifyRes = await softbridgeApi.verifyOTP({ email: user.email!, otp, purpose: 'deletion' });
+         if (!verifyRes.success) {
+            setOtpError(verifyRes.message || "Invalid verification node.");
+            setDeleting(false);
+            return;
+         }
+
+         // Final Purge
+         await softbridgeApi.deleteAccount(user.uid);
+         try {
+           await deleteUser(user);
+         } catch (fbErr: any) {
+           if (fbErr.code === 'auth/requires-recent-login') {
+               alert("Security Node Timeout: Please re-authenticate your session before purging your identity permanently.");
+               setDeleting(false);
+               setShowDeleteModal(false);
+               setShowOTPStep(false);
+               return;
+           }
+         }
+         await softbridgeApi.addActivity({ uid: user.uid, action: 'identity_purged' }).catch(() => null);
+         await logout();
+         router.push('/signup?reason=account_deleted');
       }
-      await logout();
-      router.push('/signup?reason=account_deleted');
     } catch (err: any) {
-        alert("Identity purge failed: " + err.message);
+        alert("Identity purge failed: " + (err.message || 'API Node unreachable'));
     } finally {
         setDeleting(false);
-        setShowDeleteModal(false);
     }
   };
 
@@ -116,8 +154,12 @@ export default function SecurityPage() {
       {showDeleteModal && (
         <DeleteModal 
             onConfirm={handleDeleteAccount} 
-            onCancel={() => setShowDeleteModal(false)}
+            onCancel={() => { setShowDeleteModal(false); setShowOTPStep(false); }}
             isDeleting={deleting}
+            showOTPStep={showOTPStep}
+            otp={otp}
+            setOtp={setOtp}
+            otpError={otpError}
         />
       )}
       
