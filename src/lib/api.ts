@@ -134,7 +134,7 @@ export const softbridgeApi = {
     apiFetch('/softbridge/register', { method: 'POST', body: JSON.stringify(data) }),
 
   // 2. User Login
-  login: (data: { email: string; password?: string }) => 
+  login: (data: { email: string; password?: string; meta?: string }) => 
     apiFetch('/softbridge/login', { method: 'POST', body: JSON.stringify(data) }),
 
   // 3. Forgot Password

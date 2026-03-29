@@ -172,7 +172,7 @@
   }
 
   .menuToggle { 
-    display: none !important; /* Removed as per user request */
+    display: block !important; 
   }
 }
 

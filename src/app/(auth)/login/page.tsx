@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import SuperLoader from '@/components/SuperLoader';
 
+import { getBrowserMetadata } from '@/lib/utils';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,19 +39,29 @@ export default function LoginPage() {
     setError('');
 
     try {
+      const meta = await getBrowserMetadata();
+      
       // If persistence fails (some mobile/private contexts), continue with default session persistence.
       await setPersistence(auth, browserLocalPersistence).catch(() => null);
       await signInWithEmailAndPassword(auth, email, password);
 
+      // Track activity in SoftBridge Audit Nodes
+      try {
+        await softbridgeApi.login({ 
+          email, 
+          meta: `IP: ${meta.ip} | Device: ${meta.device} | UA: ${meta.ua}` 
+        }).catch(() => null);
+      } catch (e) {}
+
       // Redirect immediately after Firebase success; backend side-notifications should never block auth UX.
       setShowSuperLoader(true);
       
-      // Proactively notify of node access
+      // Proactively notify of node access with ENRICHED metadata
       void runWithTimeout(softbridgeApi.sendAlert({
           email,
           type: 'identity_access',
-          details: `Authorized login detected on your SoftBridge Identity Hub node.`
-        }).catch(() => null), 1800);
+          details: `Authorized login detected on your SoftBridge Identity Hub node. \n\nNODE METADATA:\nIP: ${meta.ip}\nACCESS DEVICE: ${meta.device}\nUSER AGENT: ${meta.ua}\nLOCATION: ${meta.location || 'Distributed Node'}`
+        }).catch(() => null), 2000);
     } catch (err: unknown) {
       let customError = 'Authentication failed. Please verify your access keys.';
       const code = typeof err === 'object' && err && 'code' in err ? String((err as { code?: string }).code || '') : '';
@@ -64,16 +76,15 @@ export default function LoginPage() {
     }
   };
 
-  if (showSuperLoader) {
-    return <SuperLoader message="Signing you in securely" onComplete={() => router.replace('/dashboard')} />;
-  }
-
   return (
     <div className="flex-center animate-fade-in auth-shell" style={{ minHeight: '100vh', background: '#f8fafd', padding: '1rem' }}>
       <div className="bg-mesh" />
       <div className="auth-orb one" />
       <div className="auth-orb two" />
-      <div className="container" style={{ maxWidth: '480px' }}>
+      
+      {showSuperLoader && <SuperLoader message="Signing you in securely" onComplete={() => router.replace('/dashboard')} />}
+
+      <div className="container" style={{ maxWidth: '480px', position: 'relative', zIndex: 1 }}>
         <div className="auth-card-mobile animate-spring" style={{ padding: '3.5rem 2.5rem', background: '#fff' }}>
           <header style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
              <h1 className="accent-gradient" style={{ fontSize: 'min(3rem, 12vw)', fontWeight: 800, letterSpacing: '-0.06em' }}>SoftBridge</h1>

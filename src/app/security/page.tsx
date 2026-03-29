@@ -9,15 +9,22 @@ import DeleteModal from '@/components/DeleteModal';
 import { deleteUser } from 'firebase/auth';
 import SecurityModal from '@/components/SecurityModal';
 
-// Rate limit helper
-const rateLimits: Record<string, number> = {};
-const checkRateLimit = (key: string, cooldown: number = 30000) => {
+// Adaptive Rate limit helper
+const rateLimitNodes: Record<string, { count: number, last: number }> = {};
+const checkRateLimit = (key: string) => {
   const now = Date.now();
-  if (rateLimits[key] && now - rateLimits[key] < cooldown) {
-    const remains = Math.ceil((cooldown - (now - rateLimits[key])) / 1000);
-    return `Identity node cooling down. Retry in ${remains}s.`;
+  const node = rateLimitNodes[key] || { count: 0, last: 0 };
+  
+  // Base cooldown 30s, doubles each time up to 10 mins
+  const baseCooldown = 30000;
+  const currentCooldown = Math.min(baseCooldown * Math.pow(2, node.count), 600000);
+
+  if (now - node.last < currentCooldown) {
+    const remains = Math.ceil((currentCooldown - (now - node.last)) / 1000);
+    return `Security node cooling down. Retry in ${remains}s.`;
   }
-  rateLimits[key] = now;
+  
+  rateLimitNodes[key] = { count: node.count + 1, last: now };
   return null;
 };
 

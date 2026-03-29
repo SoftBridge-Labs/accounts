@@ -10,15 +10,22 @@ import { handleProfilePhotoChange } from '@/app/actions/imageUpload';
 import { getBrowserMetadata, formatPrettyDate, parsePrettyDate } from '@/lib/utils';
 import SecurityModal from '@/components/SecurityModal';
 
-// Rate limit helper
-const rateLimits: Record<string, number> = {};
-const checkRateLimit = (key: string, cooldown: number = 30000) => {
+// Adaptive Rate limit helper
+const rateLimitNodes: Record<string, { count: number, last: number }> = {};
+const checkRateLimit = (key: string) => {
   const now = Date.now();
-  if (rateLimits[key] && now - rateLimits[key] < cooldown) {
-    const remains = Math.ceil((cooldown - (now - rateLimits[key])) / 1000);
-    return `Identity node cooling down. Retry in ${remains}s.`;
+  const node = rateLimitNodes[key] || { count: 0, last: 0 };
+  
+  // Base cooldown 30s, doubles each time up to 10 mins
+  const baseCooldown = 30000;
+  const currentCooldown = Math.min(baseCooldown * Math.pow(2, node.count), 600000);
+
+  if (now - node.last < currentCooldown) {
+    const remains = Math.ceil((currentCooldown - (now - node.last)) / 1000);
+    return `Security node cooling down. Retry in ${remains}s.`;
   }
-  rateLimits[key] = now;
+  
+  rateLimitNodes[key] = { count: node.count + 1, last: now };
   return null;
 };
 
@@ -181,7 +188,7 @@ export default function ProfilePage() {
         await softbridgeApi.sendAlert({
           email: user.email!,
           type: 'identity_synchronized',
-          details: `Parameters updated for ${formData.name}. \n\nCHANGES:\n- ${changeLog}\n\nAUTH NODE METADATA:\nIP: ${meta.ip}\nACCESS DEVICE: ${meta.device}\nUA: ${meta.ua}`
+          details: `Parameters updated for ${formData.name}. \n\nCHANGES:\n- ${changeLog}\n\nAUTH NODE METADATA:\nIP: ${meta.ip}\nACCESS DEVICE: ${meta.device}\nLOCATION: ${meta.location || 'Distributed Node'}\nUA: ${meta.ua}`
         }).catch(() => null);
       } catch (e) {}
 
@@ -218,7 +225,7 @@ export default function ProfilePage() {
           <p style={{ color: 'var(--text-dim)', fontSize: '1.25rem', fontWeight: 500, marginTop: '0.4rem' }}>Global preferences for the SoftBridge identity nodes.</p>
         </header>
 
-        <div className="grid-auto animate-in stagger-1" style={{ gridTemplateColumns: 'minmax(300px, 380px) 1fr', gap: '3.5rem', alignItems: 'start' }}>
+        <div className="grid-responsive animate-in stagger-1" style={{ gap: '3.5rem', alignItems: 'start' }}>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
             <div className={`glass-card ${isProfileSyncing ? 'shimmer shimmer-card' : ''}`} style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', textAlign: 'center', background: '#fff', padding: '3rem' }}>

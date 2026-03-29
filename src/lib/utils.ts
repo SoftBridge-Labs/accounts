@@ -1,11 +1,13 @@
 export const getBrowserMetadata = async () => {
   const ua = navigator.userAgent;
   let ip = 'Unknown Node';
+  let location = 'Distributed Node';
   try {
-    const res = await fetch('https://api.ipify.org?format=json').catch(() => null);
+    const res = await fetch('https://ipapi.co/json/').catch(() => null);
     if (res) {
       const data = await res.json();
       ip = data.ip || 'Unknown Node';
+      location = data.city && data.country_name ? `${data.city}, ${data.country_name}` : 'Distributed Node';
     }
   } catch (e) {}
 
@@ -13,7 +15,7 @@ export const getBrowserMetadata = async () => {
   if (/Mobile|Android|iPhone/i.test(ua)) device = 'Mobile Node';
   if (/Tablet|iPad/i.test(ua)) device = 'Tablet Node';
 
-  return { ip, ua, device };
+  return { ip, ua, device, location };
 };
 
 export const formatPrettyDate = (dateStr: string) => {
