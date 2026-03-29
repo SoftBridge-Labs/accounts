@@ -17,9 +17,7 @@ export default function HomePage() {
       <section className="container" style={{ padding: 'clamp(100px, 15vh, 180px) 1.5rem 100px', textAlign: 'center' }}>
         <div className="animate-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
-          <div style={{ padding: '8px 24px', borderRadius: '100px', background: '#f1f5f9', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.12em', marginBottom: '2.5rem' }}>
-             UNIFIED IDENTITY SYSTEM
-          </div>
+
 
           <h1 style={{ fontSize: 'clamp(3.2rem, 9vw, 6rem)', fontWeight: 800, marginBottom: '2rem', lineHeight: '1.05', color: '#0f172a', letterSpacing: '-0.04em' }}>
             Your Global <br className="hidden-mobile" /> 

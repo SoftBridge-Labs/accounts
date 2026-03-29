@@ -45,16 +45,27 @@ export default function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const uid = userCredential.user.uid;
 
-      // Log activity: Login event
-      try {
-        await softbridgeApi.addActivity({ uid, action: 'login' }).catch(() => null);
-        await softbridgeApi.createAuditLog({ 
-          uid, 
-          event: 'login_success', 
-          source: 'softbridge',
-          details: { device: meta.device, location: meta.location }
-        }).catch(() => null);
-      } catch (e) {}
+        // 3. Complete login on the backend
+        await softbridgeApi.syncLogin({ uid, email, ip: meta.ip }).catch(() => null);
+
+        // Log activity: Login event
+        try {
+          const authDetails = `Authorized login detected. NODE METADATA: IP: ${meta.ip} ACCESS DEVICE: ${meta.device} USER AGENT: ${meta.ua} LOCATION: ${meta.location || 'Distributed Node'}`;
+          
+          await softbridgeApi.addActivity({ uid, action: 'login', ip: meta.ip }).catch(() => null);
+          await softbridgeApi.createAuditLog({ 
+            uid, 
+            event: 'login_success', 
+            source: 'softbridge',
+            details: { 
+              device: meta.device, 
+              location: meta.location,
+              userAgent: meta.ua,
+              node_metadata: authDetails
+            },
+            ip: meta.ip
+          }).catch(() => null);
+        } catch (e) {}
 
       // Redirect immediately after Firebase success; backend side-notifications should never block auth UX.
       setShowSuperLoader(true);

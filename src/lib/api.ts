@@ -177,7 +177,7 @@ export const softbridgeApi = {
     const data = await apiFetch(`/softbridge/activity?uid=${uid}`, { method: 'GET' });
     return data.logs || data;
   },
-  addActivity: (data: { uid: string; action: string }) => 
+  addActivity: (data: { uid: string; action: string; ip?: string }) => 
     apiFetch('/softbridge/activity', { method: 'POST', body: JSON.stringify(data) }),
 
   // 12. Delete Account
@@ -189,7 +189,7 @@ export const softbridgeApi = {
     apiFetch('/softbridge/account/deletion-policy', { method: 'PATCH', body: JSON.stringify(data) }),
 
   // 16. Audit Log (Custom Events)
-  createAuditLog: (data: { uid: string; event: string; source: string; details?: any }) => 
+  createAuditLog: (data: { uid: string | null; event: string; source: string; details?: any; ip?: string }) => 
     apiFetch('/softbridge/audit-log', { method: 'POST', body: JSON.stringify(data) }),
   getAuditLogs: (params: { uid?: string; event?: string; limit?: number; offset?: number }) => {
     const query = new URLSearchParams(params as any).toString();
@@ -201,6 +201,10 @@ export const softbridgeApi = {
     apiFetch('/softbridge/email-otp/send', { method: 'POST', body: JSON.stringify(data) }),
   verifyOTP: (data: { email: string; otp: string; purpose: string }) => 
     apiFetch('/softbridge/email-otp/verify', { method: 'POST', body: JSON.stringify(data) }),
+
+  // 18. Sync Login (Firebase Auth -> DB)
+  syncLogin: (data: { uid: string; email: string; ip?: string }) => 
+    apiFetch('/softbridge/login', { method: 'POST', body: JSON.stringify(data) }),
 
   // Auth Action Helpers
   confirmPasswordReset: (oobCode: string, newPassword: string) => 
