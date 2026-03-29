@@ -76,7 +76,7 @@ function DashboardContent() {
           <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: '#fff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--accent))', padding: '3px', position: 'relative' }}>
-                <img src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${profile?.name || user.email}&background=4f46e5&color=fff&bold=true`} alt="Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #fff' }} />
+                <img src={(profile?.avatar_url as string) || `https://ui-avatars.com/api/?name=${profile?.name || user.email}&background=4f46e5&color=fff&bold=true`} alt="Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #fff' }} />
                 <div style={{ position: 'absolute', bottom: '0', right: '0', width: '22px', height: '22px', background: user.emailVerified ? 'var(--success)' : 'var(--warning)', borderRadius: '50%', border: '4px solid #fff' }}></div>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -105,7 +105,7 @@ function DashboardContent() {
             </div>
             <p style={{ marginBottom: '2.5rem', color: 'var(--text-dim)', lineHeight: '1.6', fontSize: '1rem' }}>
               {isPremium 
-                ? `Active worldwide elite node until ${profile.premiumUntil ? new Date(profile.premiumUntil).toLocaleDateString() : 'Active Session'}` 
+                ? `Active worldwide elite node until ${profile?.premiumUntil ? new Date(profile.premiumUntil as any).toLocaleDateString() : 'Active Session'}` 
                 : 'Upgrade to unlock priority identity processing and ad-free experience ecosystem-wide.'}
             </p>
             <Link href="/premium" className="premium-btn" style={{ width: '100%', marginTop: 'auto', fontSize: '0.9rem' }}>

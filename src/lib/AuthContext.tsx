@@ -5,9 +5,21 @@ import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { auth } from './firebase';
 import { softbridgeApi } from './api';
 
+export interface UserProfile {
+  uid?: string;
+  email?: string;
+  name?: string;
+  avatar_url?: string;
+  phone?: string;
+  premium?: boolean;
+  premium_global?: boolean;
+  premiumUntil?: string | number | Date;
+  [key: string]: any;
+}
+
 interface AuthContextType {
   user: User | null;
-  profile: Record<string, unknown> | null;
+  profile: UserProfile | null;
   loading: boolean;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -17,7 +29,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshProfile = useCallback(async () => {
