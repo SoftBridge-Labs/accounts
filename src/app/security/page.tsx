@@ -7,6 +7,19 @@ import Navbar from '@/components/Navbar';
 import { useRouter } from 'next/navigation';
 import DeleteModal from '@/components/DeleteModal';
 import { deleteUser } from 'firebase/auth';
+import SecurityModal from '@/components/SecurityModal';
+
+// Rate limit helper
+const rateLimits: Record<string, number> = {};
+const checkRateLimit = (key: string, cooldown: number = 30000) => {
+  const now = Date.now();
+  if (rateLimits[key] && now - rateLimits[key] < cooldown) {
+    const remains = Math.ceil((cooldown - (now - rateLimits[key])) / 1000);
+    return `Identity node cooling down. Retry in ${remains}s.`;
+  }
+  rateLimits[key] = now;
+  return null;
+};
 
 export default function SecurityPage() {
   const { user, profile, loading, logout } = useAuth();
@@ -14,6 +27,9 @@ export default function SecurityPage() {
   const [fetching, setFetching] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showRotationModal, setShowRotationModal] = useState(false);
+  const [rotating, setRotating] = useState(false);
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,10 +48,31 @@ export default function SecurityPage() {
     fetchActivity();
   }, [user?.uid]);
 
+  const confirmRotation = async () => {
+    if (!user) return;
+    const error = checkRateLimit('rotation');
+    if (error) {
+       alert(error);
+       setShowRotationModal(false);
+       return;
+    }
+
+    setRotating(true);
+    try {
+      await softbridgeApi.forgotPassword(user.email!);
+      alert("Secret access rotation link transmitted to identity email.");
+    } catch (e) {
+      alert("Failed to trigger password rotation.");
+    } finally {
+      setRotating(false);
+      setShowRotationModal(false);
+    }
+  };
+
   if (loading || fetching) return (
-     <div className="flex-center" style={{ height: '100vh', background: 'var(--bg-dark)' }}>
+     <div className="flex-center" style={{ height: '100vh' }}>
         <div className="bg-mesh" />
-        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }}></div>
+        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }}></div>
      </div>
   );
   
@@ -76,6 +113,17 @@ export default function SecurityPage() {
             isDeleting={deleting}
         />
       )}
+      
+      {showRotationModal && (
+        <SecurityModal 
+          title="Rotate Access Key" 
+          message="A secure password reset link will be transmitted to your registered identity email. This node will expire after 1 hour." 
+          confirmText="TRANSMIT RESET LINK"
+          onConfirm={confirmRotation} 
+          onCancel={() => setShowRotationModal(false)}
+          isLoading={rotating}
+        />
+      )}
 
       <main className="container" style={{ paddingTop: 'min(120px, 15vh)', paddingBottom: '80px' }}>
         <header className="animate-slide-right" style={{ marginBottom: '3.5rem' }}>
@@ -83,9 +131,9 @@ export default function SecurityPage() {
           <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginTop: '0.5rem', maxWidth: '600px' }}>Full transparency for your ecosystem security nodes and identity verification trails.</p>
         </header>
 
-        <div className="grid-auto" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '2rem', alignItems: 'start' }}>
+        <div className="grid-auto" style={{ alignItems: 'start' }}>
           {/* Detailed Activity Logs */}
-          <div className="glass-card animate-spring" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border-subtle)', boxShadow: '0 20px 40px rgba(0,0,0,0.02)' }}>
+          <div className="glass-card animate-spring" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border-subtle)', background: '#fff' }}>
             <div style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', background: '#fff' }}>
                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Audit Trails</h3>
                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em', background: '#f1f5f9', padding: '0.4rem 0.8rem', borderRadius: '100px' }}>{activity.length} NODES LOGGED</span>
@@ -98,7 +146,7 @@ export default function SecurityPage() {
                   const timestamp = act.timestamp || act.event_time || act.createdAt || act.created_at;
 
                   return (
-                    <div key={i} style={{ padding: '1.5rem 2rem', borderBottom: i === activity.length - 1 ? 'none' : '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: '1rem', transition: '0.2s ease' }} className="activity-item">
+                    <div key={i} style={{ padding: '1.5rem 2rem', borderBottom: i === activity.length - 1 ? 'none' : '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'nowrap', gap: '1rem' }}>
                       <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', minWidth: 0 }}>
                          <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', border: '1px solid rgba(99, 102, 241, 0.1)' }}>{type.toLowerCase().includes('login') ? '🔑' : '📡'}</div>
                          <div style={{ minWidth: 0, overflow: 'hidden' }}>
@@ -119,9 +167,8 @@ export default function SecurityPage() {
             )}
           </div>
 
-          {/* Privacy & Danger Zone */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <div className="glass-card animate-spring" style={{ animationDelay: '0.1s' }}>
+            <div className="glass-card animate-spring" style={{ background: '#fff' }}>
                 <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', fontWeight: 800 }}>Node Status</h3>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1.2rem 0', borderBottom: '1px solid var(--border-subtle)' }}>
                     <span style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: 700 }}>Verified Link</span>
@@ -134,16 +181,13 @@ export default function SecurityPage() {
                 <button 
                   className="outline-btn" 
                   style={{ width: '100%', marginTop: '2.5rem', fontSize: '0.85rem', padding: '1rem' }}
-                  onClick={async () => {
-                      await softbridgeApi.forgotPassword(user.email!);
-                      alert("Secret access rotation link transmitted to identity email.");
-                  }}
+                  onClick={() => setShowRotationModal(true)}
                 >
                   ROTATE ACCESS KEY
                 </button>
             </div>
 
-            <div className="glass-card animate-spring" style={{ border: '1px solid rgba(239, 68, 68, 0.2)', animationDelay: '0.2s' }}>
+            <div className="glass-card animate-spring" style={{ border: '1px solid rgba(239, 68, 68, 0.1)', background: '#fff' }}>
                 <h3 style={{ marginBottom: '0.75rem', color: 'var(--error)', fontSize: '1.2rem', fontWeight: 800 }}>Identity Purge</h3>
                 <p style={{ color: 'var(--text-dim)', fontSize: '0.85rem', marginBottom: '2rem', lineHeight: '1.6', fontWeight: 500 }}>Permanently disconnect your identity from the SoftBridge system. This action results in full data erasure.</p>
                 <button className="premium-btn" style={{ width: '100%', background: 'var(--error)', borderColor: 'var(--error)', padding: '1.1rem', borderRadius: '16px', fontSize: '0.85rem' }} onClick={() => setShowDeleteModal(true)}>

@@ -73,44 +73,63 @@ function DashboardContent() {
 
         <div className="grid-auto animate-in stagger-2">
           {/* Profile Card */}
-          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: '#fff' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--accent))', padding: '3px', position: 'relative' }}>
-                <img src={(profile?.avatar_url as string) || `https://ui-avatars.com/api/?name=${profile?.name || user.email}&background=4f46e5&color=fff&bold=true`} alt="Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #fff' }} />
-                <div style={{ position: 'absolute', bottom: '0', right: '0', width: '22px', height: '22px', background: user.emailVerified ? 'var(--success)' : 'var(--warning)', borderRadius: '50%', border: '4px solid #fff' }}></div>
+          <div className={`glass-card ${!profile ? 'shimmer shimmer-card' : ''}`} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: '#fff' }}>
+            {!profile ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="shimmer shimmer-avatar" style={{ width: '80px', height: '80px' }}></div>
+                <div className="shimmer shimmer-text" style={{ width: '70%' }}></div>
+                <div className="shimmer shimmer-text" style={{ width: '40%' }}></div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '0.25rem' }}>STATUS</p>
-                <p style={{ fontSize: '0.85rem', fontWeight: 800, color: user.emailVerified ? 'var(--success)' : 'var(--warning)' }}>
-                  {user.emailVerified ? 'VERIFIED' : 'PENDING'}
-                </p>
-              </div>
-            </div>
-            <div>
-              <h3 style={{ fontSize: 'clamp(1.5rem, 4vw, 1.8rem)', marginBottom: '0.25rem', color: '#0f172a' }}>{profile?.name || 'Incomplete Identity'}</h3>
-              <p style={{ color: 'var(--text-dim)', fontSize: '0.95rem', fontWeight: 600 }}>{user.email}</p>
-            </div>
-            <Link href="/profile" className="outline-btn" style={{ fontSize: '0.9rem', width: '100%' }}>Identity Preferences</Link>
+            ) : (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--accent))', padding: '3px', position: 'relative' }}>
+                    <img src={(profile?.avatar_url as string) || `https://ui-avatars.com/api/?name=${profile?.name || user.email}&background=4f46e5&color=fff&bold=true`} alt="Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #fff' }} />
+                    <div style={{ position: 'absolute', bottom: '0', right: '0', width: '22px', height: '22px', background: user.emailVerified ? 'var(--success)' : 'var(--warning)', borderRadius: '50%', border: '4px solid #fff' }}></div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '0.25rem' }}>STATUS</p>
+                    <p style={{ fontSize: '0.85rem', fontWeight: 800, color: user.emailVerified ? 'var(--success)' : 'var(--warning)' }}>
+                      {user.emailVerified ? 'VERIFIED' : 'PENDING'}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 'clamp(1.5rem, 4vw, 1.8rem)', marginBottom: '0.25rem', color: '#0f172a' }}>{profile?.name || 'Incomplete Identity'}</h3>
+                  <p style={{ color: 'var(--text-dim)', fontSize: '0.95rem', fontWeight: 600 }}>{user.email}</p>
+                </div>
+                <Link href="/profile" className="outline-btn" style={{ fontSize: '0.9rem', width: '100%' }}>Identity Preferences</Link>
+              </>
+            )}
           </div>
 
           {/* Subscription Card */}
-          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', background: '#fff' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: 'clamp(1.5rem, 4vw, 1.8rem)', color: '#0f172a' }}>Tier Status</h3>
-              {isPremium ? (
-                <span className="accent-gradient" style={{ fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.1em' }}>MASTER IDENTITY</span>
-              ) : (
-                <span style={{ color: 'var(--text-muted)', fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.1em' }}>CORE ACCESS</span>
-              )}
-            </div>
-            <p style={{ marginBottom: '2.5rem', color: 'var(--text-dim)', lineHeight: '1.6', fontSize: '1rem' }}>
-              {isPremium 
-                ? `Active worldwide elite node until ${profile?.premiumUntil ? new Date(profile.premiumUntil as any).toLocaleDateString() : 'Active Session'}` 
-                : 'Upgrade to unlock priority identity processing and ad-free experience ecosystem-wide.'}
-            </p>
-            <Link href="/premium" className="premium-btn" style={{ width: '100%', marginTop: 'auto', fontSize: '0.9rem' }}>
-               {isPremium ? 'Manage Tiers' : 'Upgrade Account'}
-            </Link>
+          <div className={`glass-card ${!profile ? 'shimmer shimmer-card' : ''}`} style={{ display: 'flex', flexDirection: 'column', background: '#fff' }}>
+            {!profile ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="shimmer shimmer-text" style={{ width: '30%' }}></div>
+                <div className="shimmer shimmer-text" style={{ width: '100%', height: '4rem' }}></div>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                  <h3 style={{ fontSize: 'clamp(1.5rem, 4vw, 1.8rem)', color: '#0f172a' }}>Tier Status</h3>
+                  {isPremium ? (
+                    <span className="accent-gradient" style={{ fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.1em' }}>MASTER IDENTITY</span>
+                  ) : (
+                    <span style={{ color: 'var(--text-muted)', fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.1em' }}>CORE ACCESS</span>
+                  )}
+                </div>
+                <p style={{ marginBottom: '2.5rem', color: 'var(--text-dim)', lineHeight: '1.6', fontSize: '1rem' }}>
+                  {isPremium 
+                    ? `Active worldwide elite node until ${profile?.premiumUntil ? new Date(profile.premiumUntil as any).toLocaleDateString() : 'Active Session'}` 
+                    : 'Upgrade to unlock priority identity processing and ad-free experience ecosystem-wide.'}
+                </p>
+                <Link href="/premium" className="premium-btn" style={{ width: '100%', marginTop: 'auto', fontSize: '0.9rem' }}>
+                   {isPremium ? 'Manage Tiers' : 'Upgrade Account'}
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Activity Full Width */}
@@ -121,7 +140,7 @@ function DashboardContent() {
             </div>
             {activity.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {activity.slice(0, 5).map((act, i) => {
+                {activity.slice(0, 2).map((act, i) => {
                   const type = act.type || act.action || 'IDENTITY_EVENT';
                   const details = act.details || act.ip || act.ip_address || 'Authorized Node Access';
                   const timestamp = act.timestamp || act.event_time || act.createdAt || act.created_at;
@@ -143,9 +162,12 @@ function DashboardContent() {
                 })}
               </div>
             ) : (
-              <div style={{ padding: '4rem 0', textAlign: 'center', color: 'var(--text-muted)' }}>
-                <p style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🛡️</p>
-                <p style={{ fontWeight: 600 }}>No ecosystem audit trails detected.</p>
+              <div className={`${!activity.length && !profile ? 'shimmer shimmer-card' : ''}`} style={{ padding: '4rem 0', textAlign: 'center', color: 'var(--text-muted)' }}>
+                {!profile ? <div className="shimmer shimmer-text"></div> : 
+                <>
+                  <p style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🛡️</p>
+                  <p style={{ fontWeight: 600 }}>No ecosystem audit trails detected.</p>
+                </>}
               </div>
             )}
           </div>

@@ -382,3 +382,38 @@ body {
   0%, 100% { transform: scaleY(0.7); opacity: 0.5; }
   50% { transform: scaleY(1.5); opacity: 1; }
 }
+
+/* Shimmer Loading Effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.4) 25%,
+    rgba(226, 232, 240, 0.7) 50%,
+    rgba(226, 232, 240, 0.4) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-pulse 1.5s infinite linear;
+}
+
+@keyframes shimmer-pulse {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+.shimmer-text {
+  height: 1rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+}
+
+.shimmer-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+}
+
+.shimmer-card {
+  min-height: 200px;
+  border-radius: 40px;
+}

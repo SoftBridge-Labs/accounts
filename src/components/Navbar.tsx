@@ -23,6 +23,7 @@ export default function Navbar() {
                    <>
                       <Link href="/dashboard" className={styles.navLink}>Dashboard</Link>
                       <Link href="/security" className={styles.navLink}>Security</Link>
+                      <Link href="/policy" className={styles.navLink}>Policy</Link>
                       <button onClick={logout} className={styles.logoutBtnPill}>
                          Sign Out
                       </button>

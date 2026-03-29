@@ -182,6 +182,10 @@ export const softbridgeApi = {
   deleteAccount: (uid: string) => 
     apiFetch('/softbridge/account', { method: 'DELETE', body: JSON.stringify({ uid }) }),
 
+  // 13. User Custom Account Deletion Period
+  updateUserDeletionPolicy: (data: { uid: string; inactivityDays: number | null }) => 
+    apiFetch('/softbridge/account/deletion-policy', { method: 'PATCH', body: JSON.stringify(data) }),
+
   // Auth Action Helpers
   confirmPasswordReset: (oobCode: string, newPassword: string) => 
     apiFetch('/auth/confirm-password-reset', { method: 'POST', body: JSON.stringify({ oobCode, newPassword }) }),
