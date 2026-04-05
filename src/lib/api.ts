@@ -209,4 +209,14 @@ export const softbridgeApi = {
   // Auth Action Helpers
   confirmPasswordReset: (oobCode: string, newPassword: string) => 
     apiFetch('/auth/confirm-password-reset', { method: 'POST', body: JSON.stringify({ oobCode, newPassword }) }),
+
+  // 19. Authenticator App
+  authenticator: {
+    add: (data: { user_uid: string; id: string; issuer?: string; name?: string; secret: string }) => 
+      apiFetch('/authenticator/add', { method: 'POST', body: JSON.stringify(data) }),
+    list: (user_uid: string) => 
+      apiFetch(`/authenticator/list?user_uid=${user_uid}`, { method: 'GET' }),
+    delete: (user_uid: string, id: string) => 
+      apiFetch('/authenticator/delete', { method: 'DELETE', body: JSON.stringify({ user_uid, id }) }),
+  }
 };

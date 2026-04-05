@@ -34,14 +34,18 @@ export default function HomePage() {
                   <Link href="/dashboard" className="premium-btn animate-spring" style={{ padding: '1.25rem 3.5rem', width: '100%' }}>
                      Go to Identity Hub
                   </Link>
-                  <div className="mobile-cta-section" style={{ marginTop: '3rem', width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                     <Link href="/security" style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '1.5rem 1rem', borderRadius: '24px', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }} className="animate-spring">
+                  <div className="quick-links-grid" style={{ marginTop: '2.5rem' }}>
+                     <Link href="/security" style={{ background: '#fff', border: '1px solid #f1f5f9', padding: '1.5rem 1rem', borderRadius: '24px', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} className="animate-spring">
                         <span style={{ fontSize: '1.75rem' }}>🛡️</span>
-                        <span style={{ fontWeight: 800, fontSize: '0.7rem', color: '#0f172a' }}>SECURITY</span>
+                        <span style={{ fontWeight: 800, fontSize: '0.7rem', color: '#0f172a', letterSpacing: '0.05em' }}>SECURITY</span>
                      </Link>
-                     <Link href="/profile" style={{ background: '#fff', border: '1px solid #e2e8f0', padding: '1.5rem 1rem', borderRadius: '24px', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }} className="animate-spring">
+                     <Link href="/authenticator" style={{ background: '#fff', border: '1px solid #f1f5f9', padding: '1.5rem 1rem', borderRadius: '24px', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} className="animate-spring">
+                        <span style={{ fontSize: '1.75rem' }}>🔐</span>
+                        <span style={{ fontWeight: 800, fontSize: '0.7rem', color: '#0f172a', letterSpacing: '0.05em' }}>AUTHENTICATOR</span>
+                     </Link>
+                     <Link href="/profile" style={{ background: '#fff', border: '1px solid #f1f5f9', padding: '1.5rem 1rem', borderRadius: '24px', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} className="animate-spring">
                         <span style={{ fontSize: '1.75rem' }}>👤</span>
-                        <span style={{ fontWeight: 800, fontSize: '0.7rem', color: '#0f172a' }}>PROFILE</span>
+                        <span style={{ fontWeight: 800, fontSize: '0.7rem', color: '#0f172a', letterSpacing: '0.05em' }}>PROFILE</span>
                      </Link>
                   </div>
                 </>
