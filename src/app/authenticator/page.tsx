@@ -47,7 +47,8 @@ export default function AuthenticatorPage() {
     if (!user || !isPremium) return;
     try {
       setFetching(true);
-      const res = await softbridgeApi.authenticator.list(user.uid);
+      // New list call: token-based auth handles identity
+      const res = await softbridgeApi.authenticator.list();
       if (res.success) {
         setEntries(res.data || []);
       }
@@ -114,8 +115,8 @@ export default function AuthenticatorPage() {
     setFormError('');
     try {
       const entryId = Math.random().toString(36).substring(2, 11);
+      // New add call: token-based auth handles identity
       const res = await softbridgeApi.authenticator.add({
-        user_uid: user.uid,
         id: entryId,
         issuer: newIssuer,
         name: newName,
@@ -143,7 +144,8 @@ export default function AuthenticatorPage() {
     const id = showDeleteConfirm.id;
     setDeletingId(id);
     try {
-      const res = await softbridgeApi.authenticator.delete(user.uid, id);
+      // New delete call: token-based auth handles identity
+      const res = await softbridgeApi.authenticator.delete(id);
       if (res.success) {
         setEntries(prev => prev.filter(e => e.id !== id));
         setShowDeleteConfirm(null);

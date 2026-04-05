@@ -1,4 +1,5 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.softbridgelabs.in';
+import { auth } from './firebase';
 
 const escapeHtml = (value: string) =>
   value
@@ -212,11 +213,29 @@ export const softbridgeApi = {
 
   // 19. Authenticator App
   authenticator: {
-    add: (data: { user_uid: string; id: string; issuer?: string; name?: string; secret: string }) => 
-      apiFetch('/authenticator/add', { method: 'POST', body: JSON.stringify(data) }),
-    list: (user_uid: string) => 
-      apiFetch(`/authenticator/list?user_uid=${user_uid}`, { method: 'GET' }),
-    delete: (user_uid: string, id: string) => 
-      apiFetch('/authenticator/delete', { method: 'DELETE', body: JSON.stringify({ user_uid, id }) }),
+    add: async (data: { id: string; issuer?: string; name?: string; secret: string; user_uid?: string }) => {
+      const token = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+      return apiFetch('/authenticator/add', { 
+        method: 'POST', 
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(data) 
+      });
+    },
+    list: async (params: { user_uid?: string; limit?: number; offset?: number } = {}) => {
+      const token = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+      const query = new URLSearchParams(params as any).toString();
+      return apiFetch(`/authenticator/list${query ? `?${query}` : ''}`, { 
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    },
+    delete: async (id: string, user_uid?: string) => {
+      const token = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+      return apiFetch('/authenticator/delete', { 
+        method: 'DELETE', 
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ id, user_uid }) 
+      });
+    },
   }
 };
