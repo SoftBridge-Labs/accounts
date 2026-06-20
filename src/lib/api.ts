@@ -242,5 +242,37 @@ export const softbridgeApi = {
         body: JSON.stringify({ id, user_uid }) 
       });
     },
-  }
+  },
+
+  // 20. Referral Program
+  referral: {
+    /** Register a new referral code (4-6 char alphanumeric) */
+    saveCode: (code: string) =>
+      apiFetch(`/refer/save?code=${encodeURIComponent(code)}`, { method: 'GET' }),
+
+    /** Increment the usage count for an existing referral code */
+    recordNew: (code: string) =>
+      apiFetch(`/refer/new?code=${encodeURIComponent(code)}`, { method: 'GET' }),
+
+    /** Get total times a code has been used */
+    getCount: (code: string) =>
+      apiFetch(`/refer/count?code=${encodeURIComponent(code)}`, { method: 'GET' }),
+
+    /** Check if a referral code exists */
+    checkCode: (code: string) =>
+      apiFetch(`/refer/check?code=${encodeURIComponent(code)}`, { method: 'GET' }),
+
+    /** List all registered referral codes */
+    totalCodes: () =>
+      apiFetch('/refer/totalcodes', { method: 'GET' }),
+
+    /** Reset usage count for a code back to 0 */
+    resetCount: (code: string) =>
+      apiFetch(`/refer/reset?code=${encodeURIComponent(code)}`, { method: 'GET' }),
+
+    /** Permanently delete a referral code */
+    deleteCode: (code: string) =>
+      apiFetch(`/refer/delete?code=${encodeURIComponent(code)}`, { method: 'GET' }),
+  },
 };
+

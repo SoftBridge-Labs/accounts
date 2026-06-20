@@ -25,6 +25,7 @@ export default function Navbar() {
                       <Link href="/authenticator" className={styles.navLink}>Authenticator</Link>
                       <Link href="/security" className={styles.navLink}>Security</Link>
                       <Link href="/policy" className={styles.navLink}>Policy</Link>
+                      <Link href="/refer/panel" className={styles.navLink}>Referrals</Link>
                       <button onClick={logout} className={styles.logoutBtnPill}>
                          Sign Out
                       </button>

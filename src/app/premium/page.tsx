@@ -18,6 +18,7 @@ export default function PremiumPage() {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState('');
   const [metadata, setMetadata] = useState<any>(null);
+  const [appliedRef, setAppliedRef] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,6 +32,9 @@ export default function PremiumPage() {
       setMetadata(data);
     };
     fetchMeta();
+    // Read stored referral code
+    const ref = localStorage.getItem('sb_ref');
+    if (ref) setAppliedRef(ref.toUpperCase());
   }, [loading, user, router]);
 
   const formatPrice = (amount: number) => {
@@ -56,8 +60,9 @@ export default function PremiumPage() {
   
   if (!user) return null;
 
-  const handleRazorpayPayment = async (amount: number, days: number, planName: string) => {
+  const handleRazorpayPayment = async (originalAmount: number, days: number, planName: string) => {
     setProcessing(true);
+    const amount = appliedRef ? Math.round(originalAmount * 0.95) : originalAmount;
     
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_rQX9y03Tphqq19',
@@ -84,6 +89,12 @@ export default function PremiumPage() {
                 details: { planName, amount, days, paymentId: response.razorpay_payment_id },
                 ip: metadata?.ip
             }).catch(() => null);
+
+            // Track referral commission — increment referrer's count
+            if (appliedRef) {
+              await softbridgeApi.referral.recordNew(appliedRef).catch(() => null);
+              localStorage.removeItem('sb_ref'); // consume once
+            }
 
             await refreshProfile();
             setSuccess(`${planName} synchronized successfully.`);
@@ -152,6 +163,25 @@ export default function PremiumPage() {
             <h1 style={{ fontSize: 'clamp(2.4rem, 8vw, 4.5rem)', fontWeight: 800, color: '#0f172a' }}>Elevate Your <span className="accent-gradient">Access Tier.</span></h1>
             <p style={{ color: 'var(--text-dim)', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', marginTop: '0.8rem' }}>Global privileges for the SoftBridge Labs identity nodes.</p>
         </header>
+
+        {/* Referral code applied badge */}
+        {appliedRef && !success && (
+          <div className="animate-in" style={{
+            marginBottom: '2.5rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            background: 'rgba(16,185,129,0.08)',
+            border: '1.5px solid rgba(16,185,129,0.25)',
+            borderRadius: '999px',
+            padding: '0.5rem 1.2rem',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            color: 'var(--success)',
+          }}>
+            🎫 Referral code applied: <strong>{appliedRef}</strong>
+          </div>
+        )}
 
         {success && (
           <div className="glass-card animate-in" style={{ marginBottom: '4rem', borderColor: 'var(--success)', textAlign: 'center', background: 'rgba(16, 185, 129, 0.05)' }}>
@@ -224,7 +254,25 @@ export default function PremiumPage() {
                 </header>
                 
                 <div style={{ marginBottom: '2.5rem' }}>
-                    <div style={{ fontSize: '2.8rem', fontWeight: 900, color: '#0f172a' }}>{formatPrice(plan.price)}<span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600 }}>/{plan.days} days</span></div>
+                    {appliedRef ? (
+                      <div>
+                        <div style={{ fontSize: '1.4rem', textDecoration: 'line-through', color: 'var(--text-muted)', fontWeight: 600 }}>
+                          {formatPrice(plan.price)}
+                        </div>
+                        <div style={{ fontSize: '2.8rem', fontWeight: 900, color: 'var(--success)' }}>
+                          {formatPrice(Math.round(plan.price * 0.95))}
+                          <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600 }}>/{plan.days} days</span>
+                        </div>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--success)', marginTop: '0.2rem' }}>
+                          5% Referral Discount Applied
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '2.8rem', fontWeight: 900, color: '#0f172a' }}>
+                        {formatPrice(plan.price)}
+                        <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600 }}>/{plan.days} days</span>
+                      </div>
+                    )}
                     {plan.saving > 0 && (
                         <div style={{ marginTop: '0.5rem', color: 'var(--success)', fontWeight: 800, fontSize: '0.8rem', letterSpacing: '0.05em' }}>SAVE {formatPrice(plan.saving)}</div>
                     )}
