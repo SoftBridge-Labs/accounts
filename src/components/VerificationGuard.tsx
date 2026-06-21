@@ -73,10 +73,10 @@ export default function VerificationGuard({ children }: { children: React.ReactN
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-         <div className={styles.icon}>🏷️</div>
+         <div className={styles.icon}>🛡️</div>
          <h2 className={styles.title}>Identity Verification Required</h2>
          <p className={styles.message}>
-            Your SoftBridge identity node is currently **UNVERIFIED**. <br /> 
+            Your SoftBridge identity node is currently <b>UNVERIFIED</b>. <br /> 
             Verify your email address <span style={{ fontWeight: 800, color: '#0f172a' }}>{user.email}</span> to activate ecosystem-wide access.
          </p>
          

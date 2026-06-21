@@ -172,7 +172,7 @@ export default function ProfilePage() {
       const payload: any = { ...formData, uid: user.uid };
       if (!payload.birthday) delete payload.birthday; 
       
-      await softbridgeApi.updateAccountFull(payload);
+      await softbridgeApi.updateAccountPartial(payload);
       
       const changes: string[] = [];
       if (formData.name !== originalData?.name) changes.push(`Name changed to: ${formData.name}`);

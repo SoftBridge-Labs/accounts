@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import DeleteModal from '@/components/DeleteModal';
 import { deleteUser } from 'firebase/auth';
 import SecurityModal from '@/components/SecurityModal';
+import { auth } from '@/lib/firebase';
 
 // Adaptive Rate limit helper
 const rateLimitNodes: Record<string, { count: number, last: number }> = {};
@@ -137,8 +138,12 @@ export default function SecurityPage() {
            }
          }
          await softbridgeApi.addActivity({ uid: user.uid, action: 'identity_purged' }).catch(() => null);
-         await logout();
-         router.push('/signup?reason=account_deleted');
+         try {
+           if (auth && typeof auth.signOut === 'function') {
+             await auth.signOut();
+           }
+         } catch (e) {}
+         router.push('/deleted');
       }
     } catch (err: any) {
         alert("Identity purge failed: " + (err.message || 'API Node unreachable'));

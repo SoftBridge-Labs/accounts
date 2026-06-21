@@ -81,7 +81,7 @@ export const softbridgeApi = {
   // Security Alert Template Helper
   getAlertTemplate: (type: string, details: string) => {
     const safeType = escapeHtml(type.replace(/_/g, ' ').toUpperCase());
-    const safeDetails = escapeHtml(details);
+    const safeDetails = escapeHtml(details).replace(/\n/g, '<br />');
     const meta = inferAlertMeta(type);
 
     return `<!DOCTYPE html>
@@ -95,7 +95,7 @@ export const softbridgeApi = {
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f9fafb;padding:32px 12px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="580" cellspacing="0" cellpadding="0" style="max-width:580px;width:100%;background:#ffffff;border-radius:8px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.05);overflow:hidden;">
+          <table role="presentation" width="580" align="center" cellspacing="0" cellpadding="0" style="max-width:580px;width:100%;background:#ffffff;border-radius:8px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.05);overflow:hidden;margin: 0 auto;">
             <tr>
               <td style="padding:32px 32px 20px 32px;">
                 <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7280;">${meta.badge}</p>
@@ -110,13 +110,13 @@ export const softbridgeApi = {
                 
                 <div style="padding:16px;background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;margin:20px 0;">
                   <p style="margin:0 0 6px 0;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7280;">Details</p>
-                  <p style="margin:0;color:#111827;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-all;">${safeDetails}</p>
+                  <p style="margin:0;color:#111827;font-size:14px;line-height:1.5;word-break:break-word;">${safeDetails}</p>
                 </div>
                 
                 <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:24px;">
                   <tr>
                     <td style="background:#4f46e5;border-radius:6px;">
-                      <a href="${meta.ctaUrl}" style="display:inline-block;padding:10px 18px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;border-radius:6px;">${meta.ctaLabel}</a>
+                      <a href="${meta.ctaUrl}" style="display:inline-block;padding:10px 18px;color:#ffffff;background-color:#4f46e5;text-decoration:none;font-size:14px;font-weight:600;border-radius:6px;">${meta.ctaLabel}</a>
                     </td>
                   </tr>
                 </table>

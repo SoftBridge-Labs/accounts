@@ -442,3 +442,74 @@ body {
     gap: 1rem;
   }
 }
+
+/* Split Auth Layout for Login/Signup */
+.auth-split-container {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  background: #ffffff;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.03);
+}
+
+.auth-split-sidebar {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  padding: 3.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 480px;
+  color: #fff;
+}
+
+.auth-split-form-panel {
+  padding: 3.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .auth-split-container {
+    grid-template-columns: 1fr;
+    border-radius: 24px;
+    margin: 0.5rem;
+  }
+  
+  .auth-split-sidebar {
+    min-height: auto;
+    padding: 2.5rem 1.5rem;
+  }
+  
+  .auth-split-sidebar .steps-container {
+    display: none !important;
+  }
+  
+  .auth-split-sidebar h2, .auth-split-sidebar p {
+    text-align: center;
+  }
+  
+  .auth-split-sidebar h2 {
+    font-size: 1.8rem !important;
+  }
+  
+  .auth-split-sidebar p {
+    font-size: 0.85rem !important;
+    margin-bottom: 0 !important;
+  }
+  
+  .auth-split-sidebar .brand-header {
+    margin-bottom: 1rem !important;
+  }
+
+  .auth-split-form-panel {
+    padding: 2.5rem 1.5rem;
+  }
+}
+
