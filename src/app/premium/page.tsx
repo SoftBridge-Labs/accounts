@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { softbridgeApi } from '@/lib/api';
 import Navbar from '@/components/Navbar';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import SuperLoader from '@/components/SuperLoader';
 
 declare global {
@@ -13,16 +13,42 @@ declare global {
   }
 }
 
-export default function PremiumPage() {
+function PremiumPageContent() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState('');
   const [metadata, setMetadata] = useState<any>(null);
   const [appliedRef, setAppliedRef] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryUid = searchParams.get('uid');
+
+  const [externalProfile, setExternalProfile] = useState<any>(null);
+  const [externalLoading, setExternalLoading] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (queryUid) {
+      setExternalLoading(true);
+      softbridgeApi.getAccount(queryUid)
+        .then((data) => {
+          if (data && data.user) {
+            setExternalProfile({ ...data.user, premium_global: data.premium });
+          } else {
+            setExternalProfile(data);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch account for uid", queryUid, err);
+          setExternalProfile({ uid: queryUid });
+        })
+        .finally(() => {
+          setExternalLoading(false);
+        });
+    }
+  }, [queryUid]);
+
+  useEffect(() => {
+    if (!loading && !user && !queryUid) {
       router.push('/login');
     }
     // Fetch geo-metadata for currency
@@ -35,7 +61,29 @@ export default function PremiumPage() {
     // Read stored referral code
     const ref = localStorage.getItem('sb_ref');
     if (ref) setAppliedRef(ref.toUpperCase());
-  }, [loading, user, router]);
+  }, [loading, user, queryUid, router]);
+
+  const activeUid = queryUid || user?.uid;
+  const activeProfile = queryUid ? externalProfile : profile;
+  const activeEmail = queryUid ? externalProfile?.email : user?.email;
+  const activeName = queryUid ? externalProfile?.name : profile?.name;
+
+  const refreshActiveProfile = async () => {
+    if (queryUid) {
+      try {
+        const data = await softbridgeApi.getAccount(queryUid);
+        if (data && data.user) {
+          setExternalProfile({ ...data.user, premium_global: data.premium });
+        } else {
+          setExternalProfile(data);
+        }
+      } catch (err) {
+        console.error("Failed to refresh account for uid", queryUid, err);
+      }
+    } else {
+      await refreshProfile();
+    }
+  };
 
   const formatPrice = (amount: number) => {
     if (!metadata?.currency) return `₹${amount}`;
@@ -50,7 +98,7 @@ export default function PremiumPage() {
     }
   };
 
-  if (loading) return (
+  if (loading || (queryUid && externalLoading)) return (
     <div className="flex-center" style={{ height: '100vh' }}>
        <div className="bg-mesh" />
        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }}></div>
@@ -58,7 +106,7 @@ export default function PremiumPage() {
     </div>
   );
   
-  if (!user) return null;
+  if (!activeUid) return null;
 
   const handleRazorpayPayment = async (originalAmount: number, days: number, planName: string) => {
     setProcessing(true);
@@ -74,16 +122,18 @@ export default function PremiumPage() {
       handler: async function (response: any) {
         if (response.razorpay_payment_id) {
           try {
-            await softbridgeApi.activatePremium(user.uid, days);
+            await softbridgeApi.activatePremium(activeUid, days);
             
-            await softbridgeApi.sendAlert({
-              email: user.email!,
-              type: 'premium_activated',
-              details: `${planName} node successfully provisioned for ${days} days. Payment ID: ${response.razorpay_payment_id}`
-            }).catch(() => null);
+            if (activeEmail) {
+              await softbridgeApi.sendAlert({
+                email: activeEmail,
+                type: 'premium_activated',
+                details: `${planName} node successfully provisioned for ${days} days. Payment ID: ${response.razorpay_payment_id}`
+              }).catch(() => null);
+            }
 
             await softbridgeApi.createAuditLog({
-                uid: user.uid,
+                uid: activeUid,
                 event: 'premium_purchase_success',
                 source: 'softbridge',
                 details: { planName, amount, days, paymentId: response.razorpay_payment_id },
@@ -96,7 +146,7 @@ export default function PremiumPage() {
               localStorage.removeItem('sb_ref'); // consume once
             }
 
-            await refreshProfile();
+            await refreshActiveProfile();
             setSuccess(`${planName} synchronized successfully.`);
             setTimeout(() => router.push('/dashboard'), 3000);
           } catch (err: any) {
@@ -105,8 +155,8 @@ export default function PremiumPage() {
         }
       },
       prefill: {
-        name: profile?.name || "",
-        email: user.email || "",
+        name: activeName || "",
+        email: activeEmail || "",
       },
       theme: {
         color: "#4f46e5",
@@ -124,7 +174,7 @@ export default function PremiumPage() {
   const activateFreeTrial = async () => {
     setProcessing(true);
     try {
-      await softbridgeApi.addActivity({ uid: user.uid, action: 'free_tier_activation', ip: metadata?.ip }).catch(() => null);
+      await softbridgeApi.addActivity({ uid: activeUid, action: 'free_tier_activation', ip: metadata?.ip }).catch(() => null);
       setSuccess('Core Experience activated with basic node parameters.');
       setTimeout(() => router.push('/dashboard'), 3000);
     } catch (err) {
@@ -141,11 +191,11 @@ export default function PremiumPage() {
     { name: 'Omni Presence', days: 365, price: 3499, badge: 'ULTIMATE EXPERIENCE', popular: false, saving: 1355 },
   ];
 
-  const expDate = profile?.premiumUntil ? new Date(profile.premiumUntil) : null;
+  const expDate = activeProfile?.premiumUntil ? new Date(activeProfile.premiumUntil) : null;
   const daysLeft = expDate ? Math.ceil((expDate.getTime() - Date.now()) / (1000 * 3600 * 24)) : 0;
   
   // Logic to identify which plan is active based on days left
-  const activePlanIndex = profile?.premium ? (() => {
+  const activePlanIndex = activeProfile?.premium ? (() => {
     if (daysLeft > 180) return 3; // Omni
     if (daysLeft > 90) return 2;  // Quantum
     if (daysLeft > 30) return 1;  // Node+
@@ -197,12 +247,12 @@ export default function PremiumPage() {
             display: 'flex', 
             flexDirection: 'column', 
             background: '#fff',
-            border: !profile?.premium ? '2px solid var(--primary)' : '1px solid var(--border)',
-            boxShadow: !profile?.premium ? '0 20px 40px rgba(79, 70, 229, 0.1)' : 'none',
+            border: !activeProfile?.premium ? '2px solid var(--primary)' : '1px solid var(--border)',
+            boxShadow: !activeProfile?.premium ? '0 20px 40px rgba(79, 70, 229, 0.1)' : 'none',
             position: 'relative',
             padding: '2.5rem'
           }}>
-            {!profile?.premium && (
+            {!activeProfile?.premium && (
               <div style={{ position: 'absolute', top: '-14px', right: '24px', background: 'var(--primary)', color: '#fff', padding: '4px 14px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.05em' }}>CURRENT PLAN</div>
             )}
             <header style={{ marginBottom: '2.5rem' }}>
@@ -219,12 +269,12 @@ export default function PremiumPage() {
             </ul>
 
             <button 
-              className={!profile?.premium ? "secondary-btn" : "outline-btn"} 
+              className={!activeProfile?.premium ? "secondary-btn" : "outline-btn"} 
               style={{ width: '100%', marginTop: 'auto', minHeight: '3.5rem' }}
               onClick={activateFreeTrial}
-              disabled={processing || !profile?.premium}
+              disabled={processing || !activeProfile?.premium}
             >
-              {profile?.premium ? 'Downgrade to Free' : 'Currently Active'}
+              {activeProfile?.premium ? 'Downgrade to Free' : 'Currently Active'}
             </button>
           </div>
 
@@ -304,7 +354,7 @@ export default function PremiumPage() {
         </div>
 
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4rem', maxWidth: '700px', marginInline: 'auto', lineHeight: 1.6 }} className="animate-in stagger-2">
-            * To view what's included check individual product pricing, this plan gives access to entire paid ecosystem of SoftBridge Labs. {profile?.premiumUntil && `Current session expiry node: ${new Date(profile.premiumUntil).toLocaleDateString()}`}
+            * To view what's included check individual product pricing, this plan gives access to entire paid ecosystem of SoftBridge Labs. {activeProfile?.premiumUntil && `Current session expiry node: ${new Date(activeProfile.premiumUntil).toLocaleDateString()}`}
         </p>
 
         <section style={{ marginTop: '8rem', textAlign: 'center' }} className="animate-in stagger-3">
@@ -317,5 +367,19 @@ export default function PremiumPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+export default function PremiumPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex-center" style={{ height: '100vh' }}>
+        <div className="bg-mesh" />
+        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }}></div>
+        <p style={{ color: 'var(--text-dim)', marginTop: '1.5rem', fontWeight: 600 }}>SYNCING TIER ACCESS...</p>
+      </div>
+    }>
+      <PremiumPageContent />
+    </Suspense>
   );
 }
