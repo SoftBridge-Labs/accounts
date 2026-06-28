@@ -38,7 +38,7 @@ function DashboardContent() {
     <div className="flex-center" style={{ height: '100vh', gap: '1.5rem', flexDirection: 'column' }}>
        <div className="bg-mesh" />
        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }}></div>
-       <p style={{ color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '0.1em' }}>SYNCING IDENTITY NODES...</p>
+       <p style={{ color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '0.1em' }}>LOADING YOUR ACCOUNT...</p>
     </div>
   );
 
@@ -56,7 +56,7 @@ function DashboardContent() {
           <h1 style={{ fontSize: 'clamp(2.2rem, 6vw, 4rem)', marginBottom: '0.5rem', fontWeight: 800, color: '#0f172a' }}>
             Identity <span className="accent-gradient">Hub</span>
           </h1>
-          <p style={{ color: 'var(--text-dim)', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', fontWeight: 500 }}>Global control center for your SoftBridge ecosystem nodes.</p>
+          <p style={{ color: 'var(--text-dim)', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', fontWeight: 500 }}>Manage your account and SoftBridge services in one place.</p>
         </header>
 
         {setupHelp && profile && !profile.phone && (

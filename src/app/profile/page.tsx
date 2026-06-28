@@ -237,7 +237,7 @@ export default function ProfilePage() {
       <main className="container" style={{ paddingTop: '120px', paddingBottom: '80px' }}>
         <header className="animate-in" style={{ marginBottom: '4.5rem' }}>
           <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.04em' }}>Manage <span className="accent-gradient">Identity</span></h1>
-          <p style={{ color: 'var(--text-dim)', fontSize: '1.25rem', fontWeight: 500, marginTop: '0.4rem' }}>Global preferences for the SoftBridge identity nodes.</p>
+          <p style={{ color: 'var(--text-dim)', fontSize: '1.25rem', fontWeight: 500, marginTop: '0.4rem' }}>Manage your SoftBridge account and preferences.</p>
         </header>
 
         <div className="grid-responsive animate-in stagger-1" style={{ gap: '3.5rem', alignItems: 'start' }}>

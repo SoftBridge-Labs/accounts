@@ -72,7 +72,7 @@ export default function LoginPage() {
       softbridgeApi.sendAlert({
         email: normalizedEmail,
         type: 'identity_access',
-        details: `Authorized login detected on your SoftBridge Identity Hub node. \n\nNODE METADATA:\nIP: ${meta.ip}\nACCESS DEVICE: ${meta.device}\nUSER AGENT: ${meta.ua}\nLOCATION: ${meta.location || 'Distributed Node'}`
+        details: `Authorized login detected on your SoftBridge account. \n\nLOGIN DETAILS:\nIP: ${meta.ip}\nDevice: ${meta.device}\nBrowser: ${meta.ua}\nLocation: ${meta.location || 'Unknown Location'}`
       }).catch((err) => console.error("Login alert transmission failed:", err));
 
       // Redirect immediately after Firebase success; backend side-notifications should never block auth UX.
@@ -81,7 +81,7 @@ export default function LoginPage() {
       let customError = 'Authentication failed. Please verify your access keys.';
       const code = typeof err === 'object' && err && 'code' in err ? String((err as { code?: string }).code || '') : '';
       if (code.includes('user-not-found') || code.includes('wrong-password') || code.includes('invalid-credential')) {
-        customError = 'Invalid credentials for this identity node.';
+        customError = 'Invalid email or password.';
       } else if (code.includes('too-many-requests')) {
         customError = 'Security lockout: Too many failed attempts. Try again later.';
       }

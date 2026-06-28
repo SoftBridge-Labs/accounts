@@ -46,7 +46,7 @@ export default function VerificationGuard({ children }: { children: React.ReactN
         await refreshProfile();
         setTimeout(() => window.location.reload(), 1000);
       } else {
-        alert("Node status: PENDING. Please verify your identity email.");
+        alert("Your email is not yet verified. Please check your inbox and click the verification link.");
       }
     } catch (err) {
       console.error("Verification audit failed:", err);
@@ -62,7 +62,7 @@ export default function VerificationGuard({ children }: { children: React.ReactN
       setSent(true);
       setTimeout(() => setSent(false), 5000);
     } catch (err: any) {
-      alert("Verification node failed: " + err.message);
+      alert("Failed to resend verification email: " + err.message);
     }
   };
 
@@ -76,8 +76,8 @@ export default function VerificationGuard({ children }: { children: React.ReactN
          <div className={styles.icon}>🛡️</div>
          <h2 className={styles.title}>Identity Verification Required</h2>
          <p className={styles.message}>
-            Your SoftBridge identity node is currently <b>UNVERIFIED</b>. <br /> 
-            Verify your email address <span style={{ fontWeight: 800, color: '#0f172a' }}>{user.email}</span> to activate ecosystem-wide access.
+            Your SoftBridge account is currently <b>unverified</b>. <br /> 
+            Please verify your email address <span style={{ fontWeight: 800, color: '#0f172a' }}>{user.email}</span> to get full access.
          </p>
          
          <div className={styles.actionGroup}>
@@ -86,7 +86,7 @@ export default function VerificationGuard({ children }: { children: React.ReactN
               disabled={checking} 
               className={styles.primaryBtn}
             >
-              {checking ? 'AUDITING NODE...' : 'CHECK VERIFICATION'}
+              {checking ? 'CHECKING...' : 'CHECK VERIFICATION'}
             </button>
             
             <button 
@@ -94,12 +94,12 @@ export default function VerificationGuard({ children }: { children: React.ReactN
               disabled={sent} 
               className={styles.outlineBtn}
             >
-              {sent ? 'LINK SENT ✅' : 'RESEND VERIFICATION NODE'}
+              {sent ? 'LINK SENT ✅' : 'RESEND VERIFICATION EMAIL'}
             </button>
          </div>
 
          <div className={styles.footer}>
-            <p>Access to the Hub is restricted until node synchronization is complete.</p>
+            <p>Access is restricted until your email is verified.</p>
          </div>
       </div>
     </div>

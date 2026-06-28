@@ -80,7 +80,7 @@ export default function PolicyPage() {
         <div className="glass-card animate-in stagger-1" style={{ background: '#fff' }}>
           <h3 style={{ marginBottom: '1.5rem', fontSize: '1.4rem', color: '#0f172a' }}>Personal Deletion Policy</h3>
           <p style={{ color: 'var(--text-dim)', marginBottom: '2.5rem', lineHeight: '1.6', fontSize: '0.95rem' }}>
-            Customize the inactivity window before your SoftBridge identity nodes are automatically purged from the ecosystem.
+            Customize the inactivity period before your SoftBridge account data is automatically deleted.
             This value must be greater than the global system threshold.
           </p>
 

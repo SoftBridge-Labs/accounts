@@ -175,7 +175,7 @@ function PremiumPageContent() {
     setProcessing(true);
     try {
       await softbridgeApi.addActivity({ uid: activeUid, action: 'free_tier_activation', ip: metadata?.ip }).catch(() => null);
-      setSuccess('Core Experience activated with basic node parameters.');
+      setSuccess('Free plan is now active.');
       setTimeout(() => router.push('/dashboard'), 3000);
     } catch (err) {
       alert("Core Experience activation failed.");
@@ -186,7 +186,7 @@ function PremiumPageContent() {
 
   const premiumPlans = [
     { name: 'Master Identity', days: 30, price: 399, badge: 'ELITE EXPERIENCE', popular: false, saving: 0 },
-    { name: 'Identity Node+', days: 90, price: 999, badge: 'PRO EXPERIENCE', popular: true, saving: 198 },
+    { name: 'Pro Plan', days: 90, price: 999, badge: 'PRO EXPERIENCE', popular: true, saving: 198 },
     { name: 'Quantum Sync', days: 180, price: 1899, badge: 'ADVANCED EXPERIENCE', popular: false, saving: 495 },
     { name: 'Omni Presence', days: 365, price: 3499, badge: 'ULTIMATE EXPERIENCE', popular: false, saving: 1355 },
   ];
@@ -211,7 +211,7 @@ function PremiumPageContent() {
       <main className="container" style={{ paddingTop: '120px', paddingBottom: '80px' }}>
         <header className="animate-in" style={{ textAlign: 'center', marginBottom: '5rem' }}>
             <h1 style={{ fontSize: 'clamp(2.4rem, 8vw, 4.5rem)', fontWeight: 800, color: '#0f172a' }}>Elevate Your <span className="accent-gradient">Access Tier.</span></h1>
-            <p style={{ color: 'var(--text-dim)', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', marginTop: '0.8rem' }}>Global privileges for the SoftBridge Labs identity nodes.</p>
+            <p style={{ color: 'var(--text-dim)', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', marginTop: '0.8rem' }}>Unlock premium features across the entire SoftBridge ecosystem.</p>
         </header>
 
         {/* Referral code applied badge */}
@@ -236,7 +236,7 @@ function PremiumPageContent() {
         {success && (
           <div className="glass-card animate-in" style={{ marginBottom: '4rem', borderColor: 'var(--success)', textAlign: 'center', background: 'rgba(16, 185, 129, 0.05)' }}>
             <h3 style={{ color: 'var(--success)', fontSize: '1.5rem' }}>🎉 {success}</h3>
-            <p style={{ marginTop: '0.5rem', color: 'var(--text-dim)' }}>Syncing worldwide identity nodes... Redirecting to hub.</p>
+            <p style={{ marginTop: '0.5rem', color: 'var(--text-dim)' }}>Activating your plan... Redirecting to your dashboard.</p>
           </div>
         )}
 
@@ -263,7 +263,7 @@ function PremiumPageContent() {
             <div style={{ fontSize: '2.8rem', fontWeight: 900, marginBottom: '2.5rem', color: '#0f172a' }}>{formatPrice(0)}<span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600 }}>/forever</span></div>
 
             <ul style={{ listStyle: 'none', marginBottom: '4rem', gap: '1.2rem', display: 'flex', flexDirection: 'column', padding: 0 }}>
-                <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>✅ Basic Node Identification</li>
+                <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>✅ Basic Profile</li>
                 <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>✅ Standard App Features</li>
                 <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>⚠️ Supported by Ecosystem Ads</li>
             </ul>
@@ -354,7 +354,7 @@ function PremiumPageContent() {
         </div>
 
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4rem', maxWidth: '700px', marginInline: 'auto', lineHeight: 1.6 }} className="animate-in stagger-2">
-            * To view what's included check individual product pricing, this plan gives access to entire paid ecosystem of SoftBridge Labs. {activeProfile?.premiumUntil && `Current session expiry node: ${new Date(activeProfile.premiumUntil).toLocaleDateString()}`}
+            * To view what's included check individual product pricing, this plan gives access to entire paid ecosystem of SoftBridge Labs. {activeProfile?.premiumUntil && `Your subscription expires on: ${new Date(activeProfile.premiumUntil).toLocaleDateString()}`}
         </p>
 
         <section style={{ marginTop: '8rem', textAlign: 'center' }} className="animate-in stagger-3">

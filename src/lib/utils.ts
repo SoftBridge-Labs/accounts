@@ -1,21 +1,21 @@
 export const getBrowserMetadata = async () => {
   const ua = navigator.userAgent;
-  let ip = 'Unknown Node';
-  let location = 'Distributed Node';
+  let ip = 'Unknown';
+  let location = 'Unknown Location';
   let currency = 'INR';
   try {
     const res = await fetch('https://ipapi.co/json/').catch(() => null);
     if (res) {
       const data = await res.json();
-      ip = data.ip || 'Unknown Node';
-      location = data.city && data.country_name ? `${data.city}, ${data.country_name}` : 'Distributed Node';
+      ip = data.ip || 'Unknown';
+      location = data.city && data.country_name ? `${data.city}, ${data.country_name}` : 'Unknown Location';
       currency = data.currency || 'INR';
     }
   } catch (e) {}
 
   let device = 'Desktop Session';
-  if (/Mobile|Android|iPhone/i.test(ua)) device = 'Mobile Node';
-  if (/Tablet|iPad/i.test(ua)) device = 'Tablet Node';
+  if (/Mobile|Android|iPhone/i.test(ua)) device = 'Mobile Device';
+  if (/Tablet|iPad/i.test(ua)) device = 'Tablet';
 
   return { ip, ua, device, location, currency };
 };

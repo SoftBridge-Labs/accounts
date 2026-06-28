@@ -182,9 +182,9 @@ export default function AuthenticatorPage() {
         <main className="container flex-center" style={{ minHeight: 'calc(100vh - 80px)', paddingBottom: '100px' }}>
           <div className="glass-card animate-in" style={{ textAlign: 'center', maxWidth: '600px', padding: '4.5rem 3rem', background: '#fff' }}>
              <div style={{ fontSize: '5rem', marginBottom: '2rem' }}>💎</div>
-             <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1.5rem', color: '#0f172a' }}>Premium Identity Node</h1>
+             <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1.5rem', color: '#0f172a' }}>Premium Feature</h1>
              <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginBottom: '3rem', lineHeight: '1.6' }}>
-               Vault Authenticator is an elite security node exclusive to SoftBridge Premium members. Synchronize your 2FA secrets across all devices with encryption.
+               Vault Authenticator is an exclusive feature for SoftBridge Premium members. Sync your 2FA codes across all devices with end-to-end encryption.
              </p>
              <Link href="/premium" className="premium-btn animate-spring" style={{ padding: '1.25rem 3.5rem', width: '100%', fontSize: '1.1rem' }}>
                 UPGRADE TO PREMIUM
@@ -207,23 +207,23 @@ export default function AuthenticatorPage() {
               Vault <span className="accent-gradient">Authenticator</span>
             </h1>
             <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginTop: '0.5rem', maxWidth: '600px' }}>
-              Secure TOTP node management for your ecosystem and external services.
+              Manage your 2FA accounts and external services securely.
             </p>
           </div>
           <button onClick={() => setShowAddModal(true)} className="premium-btn animate-spring" style={{ padding: '1rem 2.5rem' }}>
-            <span>+</span> NEW IDENTITY
+            <span>+</span> ADD NEW ACCOUNT
           </button>
         </header>
 
         {entries.length === 0 ? (
           <div className="glass-card animate-in" style={{ textAlign: 'center', padding: '100px 2rem', background: '#fff' }}>
              <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>🔐</div>
-             <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem' }}>No Security Nodes Found</h2>
+             <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem' }}>No Accounts Added Yet</h2>
              <p style={{ color: 'var(--text-dim)', maxWidth: '400px', margin: '0 auto 2.5rem' }}>
                Add your first 2FA secret to start generating secure one-time passwords within your SoftBridge Vault.
              </p>
              <button onClick={() => setShowAddModal(true)} className="outline-btn" style={{ padding: '1rem 3rem' }}>
-               CONFIG NODE
+               ADD ACCOUNT
              </button>
           </div>
         ) : (
@@ -264,8 +264,8 @@ export default function AuthenticatorPage() {
       {showAddModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(10px)' }} onClick={() => !adding && setShowAddModal(false)}>
            <div className="glass-card animate-spring" style={{ width: '100%', maxWidth: '500px', padding: '3rem', background: '#fff' }} onClick={e => e.stopPropagation()}>
-              <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem' }}>Provision Node</h2>
-              <p style={{ color: 'var(--text-dim)', marginBottom: '2.5rem' }}>Configure a new identity node within your vault.</p>
+              <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem' }}>Add Account</h2>
+              <p style={{ color: 'var(--text-dim)', marginBottom: '2.5rem' }}>Add a new 2FA account to your vault.</p>
               <form onSubmit={handleAddEntry}>
                 <div className="input-wrapper" style={{ marginBottom: '1.5rem' }}>
                   <label className="input-label">ISSUER</label>

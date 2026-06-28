@@ -11,7 +11,7 @@ const COMMISSION_RATE = 0.10; // 10%
 
 const plans = [
   { name: 'Master Identity', days: 30, price: 399 },
-  { name: 'Identity Node+', days: 90, price: 999 },
+  { name: 'Pro Plan', days: 90, price: 999 },
   { name: 'Quantum Sync', days: 180, price: 1899 },
   { name: 'Omni Presence', days: 365, price: 3499 },
 ];
@@ -125,7 +125,7 @@ export default function ReferralPanelPage() {
       <div className="bg-mesh" />
       <div style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }} />
       <p style={{ color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '0.08em' }}>
-        {registering ? 'INITIALIZING REFERRAL NODE...' : 'LOADING...'}
+        {registering ? 'SETTING UP...' : 'LOADING...'}
       </p>
     </div>
   );

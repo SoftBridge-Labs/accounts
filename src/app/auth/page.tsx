@@ -11,7 +11,7 @@ import Link from 'next/link';
 function AuthActionHandlerContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [status, setStatus] = useState('Verifying your identity nodes...');
+  const [status, setStatus] = useState('Verifying your account...');
   const [error, setError] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [step, setStep] = useState(''); // 'confirm' for resetPassword
@@ -21,7 +21,7 @@ function AuthActionHandlerContent() {
 
   useEffect(() => {
     if (!oobCode || !mode) {
-      setStatus('Identity verification failed. Invalid access probe.');
+      setStatus('Verification failed. This link may be invalid or expired.');
       return;
     }
 

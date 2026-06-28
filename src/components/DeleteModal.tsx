@@ -18,7 +18,7 @@ export default function DeleteModal({ onConfirm, onCancel, isDeleting, showOTPSt
     <div className={styles.overlay}>
       <div className={styles.container}>
         <div className={styles.icon}>⚠️</div>
-        <h2 className={styles.title}>Delete Identity Node</h2>
+        <h2 className={styles.title}>Delete Account</h2>
         {!showOTPStep ? (
           <p className={styles.message}>
             You are about to permanently remove your identity from the <strong>SoftBridge Ecosystem</strong>. 
@@ -50,7 +50,7 @@ export default function DeleteModal({ onConfirm, onCancel, isDeleting, showOTPSt
             onClick={onConfirm} 
             disabled={isDeleting}
           >
-            {isDeleting ? 'Deactivating Node...' : (showOTPStep ? 'Confirm Deletion' : 'Delete Identity')}
+            {isDeleting ? 'Deleting Account...' : (showOTPStep ? 'Confirm Deletion' : 'Delete Account')}
           </button>
           
           <button 

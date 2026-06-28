@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
        <div className="container" style={{ maxWidth: '440px' }}>
         <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
            <h1 className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: 800 }}>RECOVER KEY</h1>
-           <p style={{ color: 'var(--text-dim)', marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: 600 }}>IDENTITY HUB PROTOCOL</p>
+           <p style={{ color: 'var(--text-dim)', marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: 600 }}>PASSWORD RECOVERY</p>
         </header>
 
         <div className="glass-card">
@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
 
           <form onSubmit={handleReset}>
             <div className="input-wrapper">
-              <label className="input-label">Identity ID (Email)</label>
+              <label className="input-label">Email Address</label>
               <input 
                 type="email" 
                 className="input-field" 

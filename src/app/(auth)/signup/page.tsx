@@ -64,15 +64,15 @@ export default function SignupPage() {
         softbridgeApi.sendAlert({
           email: normalizedEmail,
           type: 'identity_provisioned',
-          details: `Master Identity node initialized for ${name}.`
+          details: `Account created for ${name}.`
         }).catch((err) => console.error("Signup alert email failed:", err));
       }).catch((err) => console.error("Account registration sync failed:", err));
     } catch (err: unknown) {
-      let customError = 'Identification failed. Please verify your entry parameters.';
+      let customError = 'Sign up failed. Please check your details and try again.';
       const code = typeof err === 'object' && err && 'code' in err ? String((err as { code?: string }).code || '') : '';
-      if (code.includes('email-already-in-use')) customError = 'Identity ID is already mapped to an existing node.';
-      else if (code.includes('weak-password')) customError = 'Access Key is too simple. Use a more complex string.';
-      else if (code.includes('invalid-email')) customError = 'Identity ID format is invalid.';
+      if (code.includes('email-already-in-use')) customError = 'An account with this email already exists.';
+      else if (code.includes('weak-password')) customError = 'Password is too weak. Please use a stronger password.';
+      else if (code.includes('invalid-email')) customError = 'Email address is invalid.';
 
       setError(customError);
     } finally {
@@ -81,7 +81,7 @@ export default function SignupPage() {
   };
 
   if (showSuperLoader) {
-    return <SuperLoader message="Creating your identity node" onComplete={() => router.replace('/dashboard?setupHelp=true')} />;
+    return <SuperLoader message="Creating your account" onComplete={() => router.replace('/dashboard?setupHelp=true')} />;
   }
 
   return (

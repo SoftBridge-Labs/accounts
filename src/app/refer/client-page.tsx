@@ -9,7 +9,7 @@ const COMMISSION_RATE = 0.10; // 10%
 
 const plans = [
   { name: 'Master Identity', days: 30, price: 399 },
-  { name: 'Identity Node+', days: 90, price: 999 },
+  { name: 'Pro Plan', days: 90, price: 999 },
   { name: 'Quantum Sync', days: 180, price: 1899 },
   { name: 'Omni Presence', days: 365, price: 3499 },
 ];

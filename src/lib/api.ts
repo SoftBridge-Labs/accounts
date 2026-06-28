@@ -40,7 +40,7 @@ const inferAlertMeta = (type: string) => {
     return {
       badge: 'IDENTITY CREATED',
       title: 'Welcome to SoftBridge Account',
-      summary: 'Your identity node was created successfully and is ready to use.',
+      summary: 'Your account was created successfully and is ready to use.',
       accentA: '#4f46e5',
       accentB: '#0ea5e9',
       ctaLabel: 'Open Dashboard',

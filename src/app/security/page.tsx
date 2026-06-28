@@ -22,7 +22,7 @@ const checkRateLimit = (key: string) => {
 
   if (now - node.last < currentCooldown) {
     const remains = Math.ceil((currentCooldown - (now - node.last)) / 1000);
-    return `Security node cooling down. Retry in ${remains}s.`;
+    return `Too many attempts. Please wait ${remains} seconds before trying again.`;
   }
   
   rateLimitNodes[key] = { count: node.count + 1, last: now };
@@ -112,14 +112,14 @@ export default function SecurityPage() {
       } else {
          // Step 2: Verify OTP and Purge
          if (!otp || otp.length < 6) {
-            setOtpError("Identity verification node incomplete.");
+            setOtpError("Please enter the complete 6-digit code.");
             setDeleting(false);
             return;
          }
 
          const verifyRes = await softbridgeApi.verifyOTP({ email: user.email!, otp, purpose: 'deletion' });
          if (!verifyRes.success) {
-            setOtpError(verifyRes.message || "Invalid verification node.");
+            setOtpError(verifyRes.message || "Invalid verification code.");
             setDeleting(false);
             return;
          }
@@ -130,7 +130,7 @@ export default function SecurityPage() {
            await deleteUser(user);
          } catch (fbErr: any) {
            if (fbErr.code === 'auth/requires-recent-login') {
-               alert("Security Node Timeout: Please re-authenticate your session before purging your identity permanently.");
+               alert("Session expired: Please sign in again before permanently deleting your account.");
                setDeleting(false);
                setShowDeleteModal(false);
                setShowOTPStep(false);
@@ -146,7 +146,7 @@ export default function SecurityPage() {
          router.push('/deleted');
       }
     } catch (err: any) {
-        alert("Identity purge failed: " + (err.message || 'API Node unreachable'));
+        alert("Account deletion failed: " + (err.message || 'Server unreachable'));
     } finally {
         setDeleting(false);
     }
@@ -171,7 +171,7 @@ export default function SecurityPage() {
       {showRotationModal && (
         <SecurityModal 
           title="Rotate Access Key" 
-          message="A secure password reset link will be transmitted to your registered identity email. This node will expire after 1 hour." 
+          message="A secure password reset link will be sent to your registered email address. This link will expire after 1 hour." 
           confirmText="TRANSMIT RESET LINK"
           onConfirm={confirmRotation} 
           onCancel={() => setShowRotationModal(false)}
@@ -182,7 +182,7 @@ export default function SecurityPage() {
       <main className="container" style={{ paddingTop: 'min(120px, 15vh)', paddingBottom: '80px' }}>
         <header className="animate-slide-right" style={{ marginBottom: '3.5rem' }}>
           <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: 800, letterSpacing: '-0.04em' }}>Integrity <span className="accent-gradient">Audit</span></h1>
-          <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginTop: '0.5rem', maxWidth: '600px' }}>Full transparency for your ecosystem security nodes and identity verification trails.</p>
+          <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginTop: '0.5rem', maxWidth: '600px' }}>Full transparency for your account security and sign-in activity.</p>
         </header>
 
         <div className="grid-auto" style={{ alignItems: 'start' }}>
@@ -190,13 +190,13 @@ export default function SecurityPage() {
           <div className="glass-card animate-spring" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border-subtle)', background: '#fff' }}>
             <div style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', background: '#fff' }}>
                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Audit Trails</h3>
-               <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em', background: '#f1f5f9', padding: '0.4rem 0.8rem', borderRadius: '100px' }}>{activity.length} NODES LOGGED</span>
+               <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em', background: '#f1f5f9', padding: '0.4rem 0.8rem', borderRadius: '100px' }}>{activity.length} EVENTS LOGGED</span>
             </div>
             {activity.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', background: '#fff' }}>
                 {activity.map((act, i) => {
                   const type = act.type || act.action || 'IDENTITY_EVENT';
-                  const details = act.details || act.ip || act.ip_address || 'Authorized Node Access';
+                  const details = act.details || act.ip || act.ip_address || 'Account Access';
                   const timestamp = act.timestamp || act.event_time || act.createdAt || act.created_at;
 
                   return (
@@ -216,14 +216,14 @@ export default function SecurityPage() {
             ) : (
                 <div style={{ padding: '80px 0', textAlign: 'center', color: 'var(--text-muted)', background: '#fff' }}>
                     <p style={{ fontSize: '2rem', marginBottom: '1rem' }}>🛡️</p>
-                    <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Active audit node is currently empty.</p>
+                    <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>No activity recorded yet.</p>
                 </div>
             )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div className="glass-card animate-spring" style={{ background: '#fff' }}>
-                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', fontWeight: 800 }}>Node Status</h3>
+                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', fontWeight: 800 }}>Account Status</h3>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1.2rem 0', borderBottom: '1px solid var(--border-subtle)' }}>
                     <span style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: 700 }}>Verified Link</span>
                     <span style={{ color: user.emailVerified ? 'var(--success)' : 'var(--error)', fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.05em' }}>{user.emailVerified ? 'SYNCHRONIZED' : 'UNVERIFIED'}</span>
@@ -242,10 +242,10 @@ export default function SecurityPage() {
             </div>
 
             <div className="glass-card animate-spring" style={{ border: '1px solid rgba(239, 68, 68, 0.1)', background: '#fff' }}>
-                <h3 style={{ marginBottom: '0.75rem', color: 'var(--error)', fontSize: '1.2rem', fontWeight: 800 }}>Identity Purge</h3>
+                <h3 style={{ marginBottom: '0.75rem', color: 'var(--error)', fontSize: '1.2rem', fontWeight: 800 }}>Delete Account</h3>
                 <p style={{ color: 'var(--text-dim)', fontSize: '0.85rem', marginBottom: '2rem', lineHeight: '1.6', fontWeight: 500 }}>Permanently disconnect your identity from the SoftBridge system. This action results in full data erasure.</p>
                 <button className="premium-btn" style={{ width: '100%', background: 'var(--error)', borderColor: 'var(--error)', padding: '1.1rem', borderRadius: '16px', fontSize: '0.85rem' }} onClick={() => setShowDeleteModal(true)}>
-                    TERMINATE IDENTITY
+                    DELETE ACCOUNT
                 </button>
             </div>
           </div>

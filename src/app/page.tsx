@@ -25,14 +25,14 @@ export default function HomePage() {
           </h1>
           
           <p style={{ color: '#64748b', fontSize: 'clamp(1rem, 2.5vw, 1.4rem)', fontWeight: 500, marginBottom: '4rem', maxWidth: '800px', lineHeight: '1.6' }}>
-            A single identity provider for all SoftBridge ecosystem services. Securely manage your profiles, audit security nodes, and synchronize preferences across the globe.
+            A single sign-in for all SoftBridge services. Securely manage your profile, review sign-in activity, and sync your preferences across all your devices.
           </p>
           
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', width: '100%', maxWidth: '500px', minHeight: '140px' }}>
             {user ? (
                 <>
                   <Link href="/dashboard" className="premium-btn animate-spring" style={{ padding: '1.25rem 3.5rem', width: '100%' }}>
-                     Go to Identity Hub
+                     Go to Dashboard
                   </Link>
                   <div className="quick-links-grid" style={{ marginTop: '2.5rem' }}>
                      <Link href="/security" style={{ background: '#fff', border: '1px solid #f1f5f9', padding: '1.5rem 1rem', borderRadius: '24px', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }} className="animate-spring">
@@ -74,7 +74,7 @@ export default function HomePage() {
       </section>
 
       <footer style={{ padding: '80px 0', textAlign: 'center', borderTop: '1px solid #f8fafc' }}>
-          <p style={{ color: '#cbd5e1', fontWeight: 700, letterSpacing: '0.1em', fontSize: '0.75rem' }}>SOFTBRIDGE LABS IDENTITY HUB © 2026</p>
+          <p style={{ color: '#cbd5e1', fontWeight: 700, letterSpacing: '0.1em', fontSize: '0.75rem' }}>SOFTBRIDGE LABS ACCOUNT © 2026</p>
       </footer>
     </div>
   );
