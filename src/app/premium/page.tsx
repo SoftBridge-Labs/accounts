@@ -210,7 +210,7 @@ function PremiumPageContent() {
       
       <main className="container" style={{ paddingTop: '120px', paddingBottom: '80px' }}>
         <header className="animate-in" style={{ textAlign: 'center', marginBottom: '5rem' }}>
-            <h1 style={{ fontSize: 'clamp(2.4rem, 8vw, 4.5rem)', fontWeight: 800, color: '#0f172a' }}>Elevate Your <span className="accent-gradient">Access Tier.</span></h1>
+            <h1 style={{ fontSize: 'clamp(2.4rem, 8vw, 4.5rem)', fontWeight: 800, color: '#0f172a' }}>Elevate Your <span style={{ color: 'var(--primary)' }}>Access Tier.</span></h1>
             <p style={{ color: 'var(--text-dim)', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', marginTop: '0.8rem' }}>Unlock premium features across the entire SoftBridge ecosystem.</p>
         </header>
 
@@ -247,30 +247,47 @@ function PremiumPageContent() {
             display: 'flex', 
             flexDirection: 'column', 
             background: '#fff',
-            border: !activeProfile?.premium ? '2px solid var(--primary)' : '1px solid var(--border)',
-            boxShadow: !activeProfile?.premium ? '0 20px 40px rgba(79, 70, 229, 0.1)' : 'none',
+            border: !activeProfile?.premium ? '2px solid var(--primary)' : '1px solid var(--border-subtle)',
+            boxShadow: !activeProfile?.premium ? '0 20px 40px rgba(79, 70, 229, 0.08)' : 'none',
             position: 'relative',
-            padding: '2.5rem'
+            padding: '2.5rem',
+            borderRadius: '24px'
           }}>
             {!activeProfile?.premium && (
               <div style={{ position: 'absolute', top: '-14px', right: '24px', background: 'var(--primary)', color: '#fff', padding: '4px 14px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.05em' }}>CURRENT PLAN</div>
             )}
             <header style={{ marginBottom: '2.5rem' }}>
               <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.15em', marginBottom: '0.5rem' }}>CORE EXPERIENCE</p>
-              <h3 style={{ fontSize: '1.8rem', color: '#0f172a' }}>Free Tier</h3>
+              <h3 style={{ fontSize: '1.8rem', color: '#0f172a', fontWeight: 700 }}>Free Tier</h3>
             </header>
             
             <div style={{ fontSize: '2.8rem', fontWeight: 900, marginBottom: '2.5rem', color: '#0f172a' }}>{formatPrice(0)}<span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600 }}>/forever</span></div>
 
             <ul style={{ listStyle: 'none', marginBottom: '4rem', gap: '1.2rem', display: 'flex', flexDirection: 'column', padding: 0 }}>
-                <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>✅ Basic Profile</li>
-                <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>✅ Standard App Features</li>
-                <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>⚠️ Supported by Ecosystem Ads</li>
+                <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--success)' }}>check_circle</span> Basic Profile
+                </li>
+                <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--success)' }}>check_circle</span> Standard App Features
+                </li>
+                <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--warning)' }}>warning</span> Supported by Ecosystem Ads
+                </li>
             </ul>
 
             <button 
               className={!activeProfile?.premium ? "secondary-btn" : "outline-btn"} 
-              style={{ width: '100%', marginTop: 'auto', minHeight: '3.5rem' }}
+              style={{ 
+                width: '100%', 
+                marginTop: 'auto', 
+                minHeight: '3.5rem',
+                backgroundColor: !activeProfile?.premium ? 'var(--text-main)' : 'transparent',
+                color: !activeProfile?.premium ? '#ffffff' : 'var(--text-main)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: '12px',
+                fontWeight: 600,
+                cursor: activeProfile?.premium ? 'pointer' : 'default'
+              }}
               onClick={activateFreeTrial}
               disabled={processing || !activeProfile?.premium}
             >
@@ -282,17 +299,18 @@ function PremiumPageContent() {
           {premiumPlans.map((plan, i) => {
             const isActive = activePlanIndex === i;
             return (
-              <div key={plan.days} className={`glass-card plan-card ${plan.popular ? 'premium' : ''}`} style={{ 
+              <div key={plan.days} className={`glass-card plan-card`} style={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
                 background: '#fff', 
-                border: plan.popular || isActive ? '2px solid var(--primary)' : '1px solid var(--border)',
-                boxShadow: plan.popular || isActive ? '0 20px 40px rgba(79, 70, 229, 0.1)' : 'none',
+                border: isActive ? '2px solid var(--primary)' : '1px solid var(--border-subtle)',
+                boxShadow: plan.popular || isActive ? '0 20px 40px rgba(79, 70, 229, 0.08)' : 'none',
                 position: 'relative',
-                padding: '2.5rem'
+                padding: '2.5rem',
+                borderRadius: '24px'
               }}>
                 {plan.popular && !isActive && (
-                  <div style={{ position: 'absolute', top: '-14px', right: '24px', background: '#0f172a', color: '#fff', padding: '4px 14px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.05em' }}>MOST POPULAR</div>
+                  <div style={{ position: 'absolute', top: '-14px', right: '24px', background: 'var(--primary)', color: '#fff', padding: '4px 14px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.05em' }}>MOST POPULAR</div>
                 )}
                 {isActive && (
                   <div style={{ position: 'absolute', top: '-14px', right: '24px', background: 'var(--primary)', color: '#fff', padding: '4px 14px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.05em' }}>ACTIVE PLAN</div>
@@ -300,7 +318,7 @@ function PremiumPageContent() {
                 
                 <header style={{ marginBottom: '2.5rem' }}>
                   <p style={{ fontSize: '0.75rem', fontWeight: 800, color: plan.popular || isActive ? 'var(--primary)' : 'var(--text-muted)', letterSpacing: '0.15em', marginBottom: '0.5rem' }}>{plan.badge}</p>
-                  <h3 style={{ fontSize: '1.8rem', color: '#0f172a' }}>{plan.name}</h3>
+                  <h3 style={{ fontSize: '1.8rem', color: '#0f172a', fontWeight: 700 }}>{plan.name}</h3>
                 </header>
                 
                 <div style={{ marginBottom: '2.5rem' }}>
@@ -329,15 +347,36 @@ function PremiumPageContent() {
                 </div>
 
                 <ul style={{ listStyle: 'none', marginBottom: '4rem', gap: '1.2rem', display: 'flex', flexDirection: 'column', padding: 0 }}>
-                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>💎 Full Ecosystem Paid Access</li>
-                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>💎 Identity Customization Unlocked</li>
-                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>💎 Ad-Free Experience Everywhere</li>
-                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>💎 Priority Identity Sync (L1)</li>
+                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--primary)' }}>check_circle</span> Full Ecosystem Access
+                    </li>
+                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--primary)' }}>check_circle</span> Custom Identity Unlocked
+                    </li>
+                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--primary)' }}>check_circle</span> Ad-Free Experience
+                    </li>
+                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--primary)' }}>check_circle</span> Premium SoftBridge Workspace
+                    </li>
+                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--primary)' }}>check_circle</span> Priority Support Sync
+                    </li>
                 </ul>
 
                 <button 
                   className={isActive ? "secondary-btn" : "premium-btn"} 
-                  style={{ width: '100%', marginTop: 'auto', minHeight: '3.5rem' }}
+                  style={{ 
+                    width: '100%', 
+                    marginTop: 'auto', 
+                    minHeight: '3.5rem',
+                    backgroundColor: isActive ? '#f1f5f9' : 'var(--primary)',
+                    color: isActive ? 'var(--text-dim)' : '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontWeight: 600,
+                    cursor: isActive ? 'default' : 'pointer'
+                  }}
                   onClick={() => handleRazorpayPayment(plan.price, plan.days, plan.name)}
                   disabled={processing || isActive}
                 >
@@ -351,6 +390,54 @@ function PremiumPageContent() {
             );
           })}
 
+        </div>
+
+        {/* Detailed Feature Comparison Section */}
+        <div style={{
+          backgroundColor: '#ffffff',
+          borderRadius: '24px',
+          padding: '2.5rem',
+          border: '1px solid var(--border-subtle)',
+          marginTop: '4rem',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.02)'
+        }}>
+          <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', color: '#0f172a' }}>
+            Ecosystem Features Comparison
+          </h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border-subtle)' }}>
+                  <th style={{ padding: '1rem 0.5rem', fontWeight: 600, color: 'var(--text-main)', fontSize: '0.9rem', width: '40%' }}>Ecosystem Feature</th>
+                  <th style={{ padding: '1rem 0.5rem', fontWeight: 600, color: 'var(--text-main)', fontSize: '0.9rem', width: '30%' }}>Free Tier</th>
+                  <th style={{ padding: '1rem 0.5rem', fontWeight: 600, color: 'var(--primary)', fontSize: '0.9rem', width: '30%' }}>Premium Experience (Paid)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { name: 'Ad Experience', free: 'Supported by ads', paid: '100% Ad-Free Experience' },
+                  { name: 'Identity Personalization', free: 'Standard profile', paid: 'Custom avatars, unique nicknames & premium styles' },
+                  { name: 'Multi-device Sync Priority', free: 'Standard sync priority', paid: 'L1 instant priority synchronization' },
+                  { name: 'SoftBridge Workspace', free: 'Basic access', paid: 'Premium workspace access' },
+                  { name: 'Beta Features & Access', free: '✕', paid: 'First access to new SoftBridge apps & tools' },
+                  { name: 'Ecosystem API Access', free: 'Standard daily limit', paid: 'Higher limit allocation for automations' },
+                  { name: 'Premium Support Channel', free: 'Ecosystem forum support', paid: 'Priority email & ticket escalation' }
+                ].map((feat, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                    <td style={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 500 }}>
+                      {feat.name}
+                    </td>
+                    <td style={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: feat.free === '✕' ? 'var(--text-muted)' : 'var(--text-dim)' }}>
+                      {feat.free}
+                    </td>
+                    <td style={{ padding: '1rem 0.5rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>
+                      {feat.paid}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4rem', maxWidth: '700px', marginInline: 'auto', lineHeight: 1.6 }} className="animate-in stagger-2">
