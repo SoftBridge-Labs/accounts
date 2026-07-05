@@ -1,4 +1,6 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.softbridgelabs.in';
+const BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+  ? 'http://localhost:4000'
+  : (process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.softbridgelabs.in');
 import { auth } from './firebase';
 
 const escapeHtml = (value: string) =>
