@@ -180,8 +180,8 @@ export default function AuthenticatorPage() {
         <div className="bg-mesh" />
         <Navbar />
         <main className="container flex-center" style={{ minHeight: 'calc(100vh - 80px)', paddingBottom: '100px' }}>
-          <div className="glass-card animate-in" style={{ textAlign: 'center', maxWidth: '600px', padding: '4.5rem 3rem', background: '#fff' }}>
-             <div style={{ fontSize: '5rem', marginBottom: '2rem' }}>💎</div>
+          <div className="glass-card animate-in" style={{ textAlign: 'center', maxWidth: '600px', padding: '4.5rem 3rem', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '2rem' }}><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
              <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1.5rem', color: '#0f172a' }}>Premium Feature</h1>
              <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginBottom: '3rem', lineHeight: '1.6' }}>
                Vault Authenticator is an exclusive feature for SoftBridge Premium members. Sync your 2FA codes across all devices with end-to-end encryption.
@@ -216,8 +216,8 @@ export default function AuthenticatorPage() {
         </header>
 
         {entries.length === 0 ? (
-          <div className="glass-card animate-in" style={{ textAlign: 'center', padding: '100px 2rem', background: '#fff' }}>
-             <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>🔐</div>
+          <div className="glass-card animate-in" style={{ textAlign: 'center', padding: '100px 2rem', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1.5rem' }}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
              <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem' }}>No Accounts Added Yet</h2>
              <p style={{ color: 'var(--text-dim)', maxWidth: '400px', margin: '0 auto 2.5rem' }}>
                Add your first 2FA secret to start generating secure one-time passwords within your SoftBridge Vault.
@@ -240,7 +240,9 @@ export default function AuthenticatorPage() {
                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(79, 70, 229, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', border: '1px solid rgba(79, 70, 229, 0.1)' }}>
                       {(entry.issuer?.[0] || entry.name?.[0] || 'V').toUpperCase()}
                    </div>
-                   <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(entry); }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', opacity: 0.3, transition: 'opacity 0.2s' }}>🗑️</button>
+                   <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(entry); }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', borderRadius: '6px', transition: 'all 0.2s' }} className="delete-btn">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                   </button>
                 </div>
                 <div>
                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -291,15 +293,17 @@ export default function AuthenticatorPage() {
 
       {showDeleteConfirm && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(12px)' }} onClick={() => !deletingId && setShowDeleteConfirm(null)}>
-           <div className="glass-card animate-spring" style={{ width: '100%', maxWidth: '440px', padding: '3.5rem 3rem', border: '1px solid rgba(239, 68, 68, 0.2)', background: '#fff' }} onClick={e => e.stopPropagation()}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', marginBottom: '2rem' }}>⚠️</div>
-              <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1rem', color: '#0f172a' }}>Erase Identity?</h2>
-              <p style={{ color: 'var(--text-dim)', marginBottom: '2.5rem', lineHeight: '1.6' }}>
+           <div className="glass-card animate-spring" style={{ width: '100%', maxWidth: '440px', padding: '3.5rem 3rem', border: '1px solid rgba(239, 68, 68, 0.2)', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--error)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', color: '#0f172a' }}>Erase Identity?</h2>
+              <p style={{ color: 'var(--text-dim)', marginBottom: '2.5rem', lineHeight: '1.6', textAlign: 'center' }}>
                 You are about to permanently disconnect <strong style={{color: '#0f172a'}}>{showDeleteConfirm.issuer || 'this node'}</strong>. This action cannot be reversed within the ecosystem vault.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                 <button className="premium-btn" style={{ background: 'var(--error)', borderColor: 'var(--error)', padding: '1.25rem' }} onClick={handleDeleteEntry} disabled={!!deletingId}>{deletingId ? 'ERASING...' : 'CONFIRM ERASURE'}</button>
-                 <button className="outline-btn" style={{ padding: '1.1rem' }} onClick={() => setShowDeleteConfirm(null)} disabled={!!deletingId}>ABORT ACTION</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+                 <button className="premium-btn" style={{ background: 'var(--error)', borderColor: 'var(--error)', padding: '1.25rem', width: '100%' }} onClick={handleDeleteEntry} disabled={!!deletingId}>{deletingId ? 'ERASING...' : 'CONFIRM ERASURE'}</button>
+                 <button className="outline-btn" style={{ padding: '1.1rem', width: '100%' }} onClick={() => setShowDeleteConfirm(null)} disabled={!!deletingId}>ABORT ACTION</button>
               </div>
            </div>
         </div>

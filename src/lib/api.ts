@@ -274,5 +274,19 @@ export const softbridgeApi = {
     deleteCode: (code: string) =>
       apiFetch(`/refer/delete?code=${encodeURIComponent(code)}`, { method: 'GET' }),
   },
+
+  // 21. Third-Party App Registrations
+  apps: {
+    create: (data: { uid: string; name: string; app_type: string; allowed_origins: string[]; redirect_uris: string[] }) =>
+      apiFetch('/softbridge/apps', { method: 'POST', body: JSON.stringify(data) }),
+    list: (uid: string) =>
+      apiFetch(`/softbridge/apps?uid=${uid}`, { method: 'GET' }),
+    get: (clientId: string) =>
+      apiFetch(`/softbridge/apps/${clientId}`, { method: 'GET' }),
+    verify: (clientId: string, clientSecret: string) =>
+      apiFetch('/softbridge/apps/verify', { method: 'POST', body: JSON.stringify({ client_id: clientId, client_secret: clientSecret }) }),
+    delete: (clientId: string, uid: string) =>
+      apiFetch(`/softbridge/apps/${clientId}`, { method: 'DELETE', body: JSON.stringify({ uid }) }),
+  },
 };
 

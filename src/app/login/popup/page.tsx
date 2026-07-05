@@ -15,25 +15,67 @@ function LoginPopupContent() {
   const { user, profile, loading } = useAuth();
   const searchParams = useSearchParams();
   const originParam = searchParams.get('origin') || '';
+  const clientIdParam = searchParams.get('client_id') || '';
+  const clientSecretParam = searchParams.get('client_secret') || '';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [targetHost, setTargetHost] = useState('');
-
-  const originValid = validateOrigin(originParam);
+  const [originValid, setOriginValid] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (originParam) {
-      try {
-        const url = new URL(originParam);
-        setTargetHost(url.host);
-      } catch (e) {
-        setTargetHost(originParam);
+    async function verifyAndSetup() {
+      if (!originParam) {
+        setOriginValid(false);
+        return;
+      }
+
+      if (clientIdParam) {
+        if (!clientSecretParam) {
+          setOriginValid(false);
+          return;
+        }
+
+        try {
+          const res = await softbridgeApi.apps.verify(clientIdParam, clientSecretParam);
+          if (res.success && res.app) {
+            const app = res.app;
+            const origins = app.allowed_origins || [];
+            let parsedOrigin = '';
+            try {
+              parsedOrigin = new URL(originParam).origin;
+            } catch (e) {
+              parsedOrigin = originParam;
+            }
+
+            const isValid = origins.includes(parsedOrigin);
+            setOriginValid(isValid);
+            setTargetHost(app.name);
+          } else {
+            setOriginValid(false);
+          }
+        } catch (err) {
+          console.error("App verification failed", err);
+          setOriginValid(false);
+        }
+      } else {
+        const isValid = validateOrigin(originParam);
+        setOriginValid(isValid);
+        if (isValid) {
+          try {
+            const url = new URL(originParam);
+            setTargetHost(url.host);
+          } catch (e) {
+            setTargetHost(originParam);
+          }
+        }
       }
     }
-  }, [originParam]);
+
+    verifyAndSetup();
+  }, [originParam, clientIdParam]);
 
   // If already authenticated and origin is valid, send data and close popup
   useEffect(() => {
@@ -121,7 +163,7 @@ function LoginPopupContent() {
     }
   };
 
-  if (loading) {
+  if (loading || originValid === null) {
     return <LoadingView />;
   }
 

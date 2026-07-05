@@ -1,25 +1,25 @@
 # Single Sign-On (SSO) Integration Guide
 
-This guide explains how external SoftBridge applications can delegate user login to the SoftBridge Accounts system using the secure popup login flow.
+This guide explains how external and third-party applications can delegate user login to the SoftBridge Accounts system using the secure popup login flow.
 
 ## Overview
 
 The SSO flow is designed to be simple and secure:
-1. The client application opens the SoftBridge Accounts login page in a popup window:
-   `https://accounts.softbridgelabs.in/login/popup?origin=<CLIENT_ORIGIN>`
-2. The Accounts app validates the `origin` query parameter to ensure it is authorized.
-3. The user authenticates (or is automatically detected if they are already logged in).
-4. The Accounts app posts the authentication data back to the client application via `window.opener.postMessage`.
-5. The popup window closes automatically.
+1. Register your application in the **Developer Portal** (`https://accounts.softbridgelabs.in/developer`) to receive a unique `client_id`, `client_secret`, and register your `allowed_origins`.
+2. The client application opens the SoftBridge Accounts login page in a popup window:
+   `https://accounts.softbridgelabs.in/login/popup?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&origin=<CLIENT_ORIGIN>`
+3. The Accounts app validates the `client_id` and `client_secret` to ensure they are registered and authorized.
+4. The user authenticates (or is automatically detected if they are already logged in).
+5. The Accounts app posts the authentication data back to the client application via `window.opener.postMessage`.
+6. The popup window closes automatically.
 
 ---
 
 ## Domain Restrictions
 
-To prevent unauthorized token extraction, only the following origins are permitted to initiate and receive authentication payloads:
-- Hostnames ending with `.softbridgelabs.in` (e.g., `https://console.softbridgelabs.in`)
-- Exactly `softbridgelabs.in`
-- `localhost` with any port or protocol (e.g., `http://localhost:3000`)
+To prevent unauthorized token extraction, the initiating `origin` must match one of:
+- The registered **Allowed Origins** for your application's `client_id` / `client_secret` in the Developer Portal.
+- (Default fallback for internal apps) Hostnames ending with `.softbridgelabs.in` or `localhost`.
 
 ---
 
@@ -28,8 +28,10 @@ To prevent unauthorized token extraction, only the following origins are permitt
 Below is an example of how you can implement the login popup and message listener in your React or Vanilla JavaScript application:
 
 ```javascript
-// 1. Define the Accounts URL
+// 1. Define the Accounts URL and your Client credentials
 const ACCOUNTS_URL = "https://accounts.softbridgelabs.in"; // or local dev URL
+const CLIENT_ID = "sb_your_client_id_here"; // Obtain from Developer Portal
+const CLIENT_SECRET = "sbsec_your_client_secret_here"; // Obtain from Developer Portal
 
 // 2. Open the login popup
 function triggerSoftBridgeLogin() {
@@ -40,7 +42,7 @@ function triggerSoftBridgeLogin() {
   const top = window.screen.height / 2 - popupHeight / 2;
 
   const loginPopup = window.open(
-    `${ACCOUNTS_URL}/login/popup?origin=${encodeURIComponent(currentOrigin)}`,
+    `${ACCOUNTS_URL}/login/popup?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&origin=${encodeURIComponent(currentOrigin)}`,
     "SoftBridgeLoginPopup",
     `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes`
   );

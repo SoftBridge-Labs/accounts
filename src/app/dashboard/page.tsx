@@ -62,9 +62,12 @@ function DashboardContent() {
         {setupHelp && profile && !profile.phone && (
           <div className="glass-card animate-in stagger-1" style={{ marginBottom: '3rem', borderLeft: '4px solid var(--primary)', background: '#fff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-              <div>
-                <h3 style={{ color: 'var(--primary)', marginBottom: '0.50rem', fontSize: '1.25rem' }}>🚀 Optimization Recommended</h3>
-                <p style={{ color: 'var(--text-dim)', fontWeight: 500 }}>Complete your identity parameters to unlock ecosystem-wide phone verification.</p>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '0.75rem' }}><path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5M16.5 7.5L19 5m-7 7l-5.5 5.5-2.5-2.5L9.5 9.5m10-4.5c.5-2.5-1.5-4.5-4-4L5.5 10.5 8 13l5-5"/></svg>
+                <div>
+                  <h3 style={{ color: 'var(--primary)', marginBottom: '0.10rem', fontSize: '1.25rem' }}>Optimization Recommended</h3>
+                  <p style={{ color: 'var(--text-dim)', fontWeight: 500 }}>Complete your identity parameters to unlock ecosystem-wide phone verification.</p>
+                </div>
               </div>
               <Link href="/profile" className="premium-btn" style={{ padding: '0.8rem 1.5rem', fontSize: '0.85rem' }}>Optimize Profile</Link>
             </div>
@@ -132,6 +135,20 @@ function DashboardContent() {
             )}
           </div>
 
+          {/* Developer Portal Card */}
+          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', background: '#fff' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: 'clamp(1.5rem, 4vw, 1.8rem)', color: '#0f172a' }}>Developer Portal</h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <p style={{ marginBottom: '2.5rem', color: 'var(--text-dim)', lineHeight: '1.6', fontSize: '1rem' }}>
+              Register websites and third-party applications for dynamic pop-up authentication. Manage allowed origins, redirect URIs, and OAuth client credentials.
+            </p>
+            <Link href="/developer" className="premium-btn" style={{ width: '100%', marginTop: 'auto', fontSize: '0.9rem' }}>
+               Register Third-Party Apps
+            </Link>
+          </div>
+
           {/* Activity Full Width */}
           <div className="glass-card" style={{ gridColumn: 'min(100%, 1 / -1)', background: '#fff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -144,13 +161,18 @@ function DashboardContent() {
                   const type = act.type || act.action || 'IDENTITY_EVENT';
                   const details = act.details || act.ip || act.ip_address || 'Authorized Node Access';
                   const timestamp = act.timestamp || act.event_time || act.createdAt || act.created_at;
+                  const isLogin = type.toLowerCase().includes('login');
                   
                   return (
                     <div key={i} style={{ padding: '1.4rem', background: '#f8fafc', borderRadius: '20px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                       <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
-                         <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(79, 70, 229, 0.08)', border: '1px solid rgba(79, 70, 229, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
-                            {type.toLowerCase().includes('login') ? '🔑' : '📡'}
-                          </div>
+                         <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(79, 70, 229, 0.08)', border: '1px solid rgba(79, 70, 229, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                           {isLogin ? (
+                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3M15.5 7.5L14 9"/></svg>
+                           ) : (
+                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                           )}
+                         </div>
                          <div>
                             <p style={{ fontWeight: 800, fontSize: '0.95rem', letterSpacing: '0.01em', color: '#0f172a' }}>{type.replace('_', ' ').toUpperCase()}</p>
                             <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginTop: '0.2rem' }}>{details}</p>
@@ -165,7 +187,9 @@ function DashboardContent() {
               <div className={`${!activity.length && !profile ? 'shimmer shimmer-card' : ''}`} style={{ padding: '4rem 0', textAlign: 'center', color: 'var(--text-muted)' }}>
                 {!profile ? <div className="shimmer shimmer-text"></div> : 
                 <>
-                  <p style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🛡️</p>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  </div>
                   <p style={{ fontWeight: 600 }}>No ecosystem audit trails detected.</p>
                 </>}
               </div>
