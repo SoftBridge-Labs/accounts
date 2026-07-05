@@ -1,6 +1,9 @@
-const BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-  ? 'http://localhost:4000'
-  : (process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.softbridgelabs.in');
+function getBaseUrl() {
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:4000';
+  }
+  return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.softbridgelabs.in';
+}
 import { auth } from './firebase';
 
 const escapeHtml = (value: string) =>
@@ -62,7 +65,7 @@ const inferAlertMeta = (type: string) => {
 };
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
-  const url = `${BASE_URL}${endpoint}`;
+  const url = `${getBaseUrl()}${endpoint}`;
   const response = await fetch(url, {
     ...options,
     headers: {

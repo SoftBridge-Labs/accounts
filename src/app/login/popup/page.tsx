@@ -15,6 +15,8 @@ function LoginPopupContent() {
   const { user, profile, loading } = useAuth();
   const searchParams = useSearchParams();
   const originParam = searchParams.get('origin') || '';
+  // Use .has() to distinguish "not provided" from "provided but empty"
+  const clientIdProvided = searchParams.has('client_id');
   const clientIdParam = searchParams.get('client_id') || '';
   const clientSecretParam = searchParams.get('client_secret') || '';
 
@@ -32,8 +34,10 @@ function LoginPopupContent() {
         return;
       }
 
-      if (clientIdParam) {
-        if (!clientSecretParam) {
+      // Case 1: client_id param was present in the URL (even if empty) → must verify credentials
+      if (clientIdProvided) {
+        // Reject immediately if either credential is empty
+        if (!clientIdParam || !clientSecretParam) {
           setOriginValid(false);
           return;
         }
@@ -61,6 +65,7 @@ function LoginPopupContent() {
           setOriginValid(false);
         }
       } else {
+        // Case 2: no client_id at all → internal SoftBridge origins only
         const isValid = validateOrigin(originParam);
         setOriginValid(isValid);
         if (isValid) {
@@ -75,7 +80,7 @@ function LoginPopupContent() {
     }
 
     verifyAndSetup();
-  }, [originParam, clientIdParam]);
+  }, [originParam, clientIdParam, clientSecretParam]);
 
   // If already authenticated and origin is valid, send data and close popup
   useEffect(() => {
