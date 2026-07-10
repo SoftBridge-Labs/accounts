@@ -4,10 +4,13 @@
  */
 export const validateOrigin = (origin: string): boolean => {
   if (!origin) return false;
+  // Allow custom app schemes (e.g. app://) or any http/https origins 
+  // as per the requirement "allow anyone to register there apps"
   try {
     const url = new URL(origin);
-    const hostname = url.hostname;
-    return hostname === 'localhost' || hostname === 'softbridgelabs.in' || hostname.endsWith('.softbridgelabs.in');
+    // You can add logic to check if it's http/https/app etc.
+    // For now we allow valid URLs.
+    return true;
   } catch (e) {
     return false;
   }

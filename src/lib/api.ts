@@ -293,5 +293,23 @@ export const softbridgeApi = {
     delete: (clientId: string, uid: string) =>
       apiFetch(`/softbridge/apps/${clientId}`, { method: 'DELETE', body: JSON.stringify({ uid }) }),
   },
+  
+  // 22. Billing
+  billing: {
+    createOneTimeOrder: (data: { amount: number; currency?: string; receipt?: string }) =>
+      apiFetch('/billing/one-time', { method: 'POST', body: JSON.stringify(data) }),
+    createSubscription: (data: { planId: string; totalCount?: number; startAt?: number }) =>
+      apiFetch('/billing/subscription', { method: 'POST', body: JSON.stringify(data) }),
+    fetchSubscription: (id: string) =>
+      apiFetch(`/billing/subscription/${id}`, { method: 'GET' }),
+    cancelSubscription: (id: string, cancelAtCycleEnd: boolean = false) =>
+      apiFetch(`/billing/subscription/${id}/cancel`, { method: 'POST', body: JSON.stringify({ cancelAtCycleEnd }) }),
+    pauseSubscription: (id: string) =>
+      apiFetch(`/billing/subscription/${id}/pause`, { method: 'POST' }),
+    resumeSubscription: (id: string) =>
+      apiFetch(`/billing/subscription/${id}/resume`, { method: 'POST' }),
+    verifyPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
+      apiFetch('/billing/verify', { method: 'POST', body: JSON.stringify(data) }),
+  }
 };
 

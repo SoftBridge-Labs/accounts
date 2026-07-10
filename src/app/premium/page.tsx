@@ -112,63 +112,87 @@ function PremiumPageContent() {
     setProcessing(true);
     const amount = appliedRef ? Math.round(originalAmount * 0.95) : originalAmount;
     
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_rQX9y03Tphqq19',
-      amount: amount * 100, 
-      currency: metadata?.currency || "INR",
-      name: "SOFTBRIDGE LABS",
-      description: `${planName.toUpperCase()} - ${days} DAYS ACCESS`,
-      image: "https://softbridge.in/favicon.ico",
-      handler: async function (response: any) {
-        if (response.razorpay_payment_id) {
-          try {
-            await softbridgeApi.activatePremium(activeUid, days);
-            
-            if (activeEmail) {
-              await softbridgeApi.sendAlert({
-                email: activeEmail,
-                type: 'premium_activated',
-                details: `${planName} node successfully provisioned for ${days} days. Payment ID: ${response.razorpay_payment_id}`
+    try {
+      // 1. Create Order on Backend
+      const orderRes = await softbridgeApi.billing.createOneTimeOrder({ amount, currency: metadata?.currency || "INR" });
+      if (!orderRes || !orderRes.order || !orderRes.order.id) {
+         throw new Error("Failed to create billing order");
+      }
+      
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_rQX9y03Tphqq19',
+        amount: amount * 100, 
+        currency: metadata?.currency || "INR",
+        name: "SOFTBRIDGE LABS",
+        description: `${planName.toUpperCase()} - ${days} DAYS ACCESS`,
+        image: "https://softbridge.in/favicon.ico",
+        order_id: orderRes.order.id, // Pass order ID to Razorpay
+        handler: async function (response: any) {
+          if (response.razorpay_payment_id) {
+            try {
+              // 2. Verify payment on Backend
+              const verifyRes = await softbridgeApi.billing.verifyPayment({
+                 razorpay_order_id: response.razorpay_order_id,
+                 razorpay_payment_id: response.razorpay_payment_id,
+                 razorpay_signature: response.razorpay_signature
+              });
+
+              if (!verifyRes.success) {
+                  throw new Error("Payment verification failed");
+              }
+
+              await softbridgeApi.activatePremium(activeUid, days);
+              
+              if (activeEmail) {
+                await softbridgeApi.sendAlert({
+                  email: activeEmail,
+                  type: 'premium_activated',
+                  details: `${planName} node successfully provisioned for ${days} days. Payment ID: ${response.razorpay_payment_id}`
+                }).catch(() => null);
+              }
+
+              await softbridgeApi.createAuditLog({
+                  uid: activeUid,
+                  event: 'premium_purchase_success',
+                  source: 'softbridge',
+                  details: { planName, amount, days, paymentId: response.razorpay_payment_id },
+                  ip: metadata?.ip
               }).catch(() => null);
+
+              // Track referral commission — increment referrer's count
+              if (appliedRef) {
+                await softbridgeApi.referral.recordNew(appliedRef).catch(() => null);
+                localStorage.removeItem('sb_ref'); // consume once
+              }
+
+              await refreshActiveProfile();
+              setSuccess(`${planName} synchronized successfully.`);
+              setTimeout(() => router.push('/dashboard'), 3000);
+            } catch (err: any) {
+              alert("Provisioning failed: " + err.message);
+              setProcessing(false);
             }
-
-            await softbridgeApi.createAuditLog({
-                uid: activeUid,
-                event: 'premium_purchase_success',
-                source: 'softbridge',
-                details: { planName, amount, days, paymentId: response.razorpay_payment_id },
-                ip: metadata?.ip
-            }).catch(() => null);
-
-            // Track referral commission — increment referrer's count
-            if (appliedRef) {
-              await softbridgeApi.referral.recordNew(appliedRef).catch(() => null);
-              localStorage.removeItem('sb_ref'); // consume once
-            }
-
-            await refreshActiveProfile();
-            setSuccess(`${planName} synchronized successfully.`);
-            setTimeout(() => router.push('/dashboard'), 3000);
-          } catch (err: any) {
-            alert("Provisioning failed: " + err.message);
           }
-        }
-      },
-      prefill: {
-        name: activeName || "",
-        email: activeEmail || "",
-      },
-      theme: {
-        color: "#4f46e5",
-      },
-    };
+        },
+        prefill: {
+          name: activeName || "",
+          email: activeEmail || "",
+        },
+        theme: {
+          color: "#4f46e5",
+        },
+      };
 
-    const rzp1 = new window.Razorpay(options);
-    rzp1.on('payment.failed', function (response: any) {
-      alert("Payment failed: " + response.error.description);
-      setProcessing(false);
-    });
-    rzp1.open();
+      const rzp1 = new window.Razorpay(options);
+      rzp1.on('payment.failed', function (response: any) {
+        alert("Payment failed: " + response.error.description);
+        setProcessing(false);
+      });
+      rzp1.open();
+    } catch (err: any) {
+       alert("Checkout Error: " + err.message);
+       setProcessing(false);
+    }
   };
 
   const activateFreeTrial = async () => {
@@ -179,6 +203,32 @@ function PremiumPageContent() {
       setTimeout(() => router.push('/dashboard'), 3000);
     } catch (err) {
       alert("Core Experience activation failed.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleSubscriptionAction = async (action: 'cancel' | 'pause' | 'resume') => {
+    const subId = activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id;
+    if (!subId) {
+      alert("No active subscription ID found for your account.");
+      return;
+    }
+    setProcessing(true);
+    try {
+      if (action === 'cancel') {
+        const res = await softbridgeApi.billing.cancelSubscription(subId, true);
+        if (res.success) alert("Subscription cancelled successfully. You will not be billed next cycle.");
+      } else if (action === 'pause') {
+        const res = await softbridgeApi.billing.pauseSubscription(subId);
+        if (res.success) alert("Subscription paused.");
+      } else if (action === 'resume') {
+        const res = await softbridgeApi.billing.resumeSubscription(subId);
+        if (res.success) alert("Subscription resumed.");
+      }
+      await refreshActiveProfile();
+    } catch (error: any) {
+      alert(`Failed to ${action} subscription: ` + error.message);
     } finally {
       setProcessing(false);
     }
@@ -213,6 +263,46 @@ function PremiumPageContent() {
             <h1 style={{ fontSize: 'clamp(2.4rem, 8vw, 4.5rem)', fontWeight: 800, color: '#0f172a' }}>Elevate Your <span style={{ color: 'var(--primary)' }}>Access Tier.</span></h1>
             <p style={{ color: 'var(--text-dim)', fontSize: 'clamp(1rem, 1.2vw, 1.2rem)', marginTop: '0.8rem' }}>Unlock premium features across the entire SoftBridge ecosystem.</p>
         </header>
+
+        {activeProfile?.premium && (
+          <div className="glass-card animate-in" style={{ marginBottom: '3rem', padding: '2rem', borderRadius: '16px', background: '#fff', border: '1px solid var(--border-subtle)' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#0f172a', marginBottom: '1rem' }}>Manage Subscription</h3>
+            <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              You are currently on a premium tier. If you have an active recurring subscription, you can manage it below. 
+              If you purchased a one-time access pass, these options will be disabled.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <button 
+                className="outline-btn"
+                style={{ flex: 1, minWidth: '150px', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontWeight: 600, cursor: (activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id) ? 'pointer' : 'not-allowed', opacity: (activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id) ? 1 : 0.5 }}
+                onClick={() => handleSubscriptionAction('pause')}
+                disabled={processing || !(activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id)}
+              >
+                Pause Plan
+              </button>
+              <button 
+                className="outline-btn"
+                style={{ flex: 1, minWidth: '150px', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontWeight: 600, cursor: (activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id) ? 'pointer' : 'not-allowed', opacity: (activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id) ? 1 : 0.5 }}
+                onClick={() => handleSubscriptionAction('resume')}
+                disabled={processing || !(activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id)}
+              >
+                Resume Plan
+              </button>
+              <button 
+                className="outline-btn"
+                style={{ flex: 1, minWidth: '150px', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--danger, #ef4444)', color: 'var(--danger, #ef4444)', fontWeight: 600, cursor: (activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id) ? 'pointer' : 'not-allowed', opacity: (activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id) ? 1 : 0.5 }}
+                onClick={() => {
+                  if (confirm("Are you sure you want to cancel your subscription?")) {
+                    handleSubscriptionAction('cancel');
+                  }
+                }}
+                disabled={processing || !(activeProfile?.subscription_id || activeProfile?.razorpay_subscription_id)}
+              >
+                Cancel Subscription
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Referral code applied badge */}
         {appliedRef && !success && (
@@ -295,6 +385,58 @@ function PremiumPageContent() {
             </button>
           </div>
 
+          {/* 30 Days Free Trial */}
+          {!activeProfile?.premium && (
+            <div className="glass-card plan-card" style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              background: '#fff',
+              border: '2px solid var(--success)',
+              boxShadow: '0 20px 40px rgba(16, 185, 129, 0.08)',
+              position: 'relative',
+              padding: '2.5rem',
+              borderRadius: '24px'
+            }}>
+              <div style={{ position: 'absolute', top: '-14px', right: '24px', background: 'var(--success)', color: '#fff', padding: '4px 14px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.05em' }}>ONE TIME OFFER</div>
+              <header style={{ marginBottom: '2.5rem' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--success)', letterSpacing: '0.15em', marginBottom: '0.5rem' }}>TRIAL EXPERIENCE</p>
+                <h3 style={{ fontSize: '1.8rem', color: '#0f172a', fontWeight: 700 }}>30 Days Free Trial</h3>
+              </header>
+              
+              <div style={{ fontSize: '2.8rem', fontWeight: 900, marginBottom: '2.5rem', color: '#0f172a' }}>{formatPrice(0)}<span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600 }}>/30 days</span></div>
+
+              <ul style={{ listStyle: 'none', marginBottom: '4rem', gap: '1.2rem', display: 'flex', flexDirection: 'column', padding: 0 }}>
+                  <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--success)' }}>check_circle</span> Premium access to <a href="https://softbridgelabs.in/products/" target="_blank" style={{color: 'var(--primary)', textDecoration: 'none'}}>SoftBridge Products</a>
+                  </li>
+                  <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--success)' }}>check_circle</span> Ad-Free Experience
+                  </li>
+                  <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--success)' }}>check_circle</span> Full Ecosystem Access
+                  </li>
+              </ul>
+
+              <button 
+                className="premium-btn"
+                style={{ 
+                  width: '100%', 
+                  marginTop: 'auto', 
+                  minHeight: '3.5rem',
+                  backgroundColor: 'var(--success)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+                onClick={() => router.push('/claim')}
+              >
+                Claim Free Trial
+              </button>
+            </div>
+          )}
+
           {/* Premium Plans */}
           {premiumPlans.map((plan, i) => {
             const isActive = activePlanIndex === i;
@@ -347,6 +489,9 @@ function PremiumPageContent() {
                 </div>
 
                 <ul style={{ listStyle: 'none', marginBottom: '4rem', gap: '1.2rem', display: 'flex', flexDirection: 'column', padding: 0 }}>
+                    <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--primary)' }}>check_circle</span> Premium access to <a href="https://softbridgelabs.in/products/" target="_blank" style={{color: 'var(--primary)', textDecoration: 'none'}}>SoftBridge Products</a>
+                    </li>
                     <li style={{ fontSize: '0.95rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--primary)' }}>check_circle</span> Full Ecosystem Access
                     </li>
