@@ -55,6 +55,17 @@ function ClaimPageContent() {
         if (!subRes || !subRes.subscription || !subRes.subscription.id) {
            throw new Error("Failed to create subscription on backend.");
         }
+
+        // Record checkout intent
+        if (user?.email) {
+           await softbridgeApi.billing.recordCheckoutIntent({
+              uid: user.uid,
+              email: user.email,
+              planName: "Pro Plan Free Trial",
+              amount: 0,
+              type: 'claim'
+           }).catch(() => null);
+        }
         
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_rQX9y03Tphqq19',
@@ -71,6 +82,8 @@ function ClaimPageContent() {
                  razorpay_signature: response.razorpay_signature
               });
               if (verifyRes.success) {
+                 // Payment success, clear intent
+                 await softbridgeApi.billing.clearCheckoutIntent(user.uid).catch(() => null);
                  await finalizeTrial();
               } else {
                  alert("Payment verification failed");

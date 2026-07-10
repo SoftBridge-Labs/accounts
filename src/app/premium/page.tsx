@@ -118,6 +118,17 @@ function PremiumPageContent() {
       if (!orderRes || !orderRes.order || !orderRes.order.id) {
          throw new Error("Failed to create billing order");
       }
+
+      // Record checkout intent
+      if (activeEmail) {
+         await softbridgeApi.billing.recordCheckoutIntent({
+            uid: activeUid,
+            email: activeEmail,
+            planName,
+            amount,
+            type: 'premium'
+         }).catch(() => null);
+      }
       
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_rQX9y03Tphqq19',
@@ -140,6 +151,9 @@ function PremiumPageContent() {
               if (!verifyRes.success) {
                   throw new Error("Payment verification failed");
               }
+
+              // Payment success, clear intent
+              await softbridgeApi.billing.clearCheckoutIntent(activeUid).catch(() => null);
 
               await softbridgeApi.activatePremium(activeUid, days);
               

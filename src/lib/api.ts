@@ -310,6 +310,10 @@ export const softbridgeApi = {
       apiFetch(`/billing/subscription/${id}/resume`, { method: 'POST' }),
     verifyPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
       apiFetch('/billing/verify', { method: 'POST', body: JSON.stringify(data) }),
+    recordCheckoutIntent: (data: { uid: string; email: string; planName: string; amount: number; type: string }) =>
+      apiFetch('/billing/intent', { method: 'POST', body: JSON.stringify(data) }),
+    clearCheckoutIntent: (uid: string) =>
+      apiFetch('/billing/intent/clear', { method: 'POST', body: JSON.stringify({ uid }) }),
   }
 };
 
