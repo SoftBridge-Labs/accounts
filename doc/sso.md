@@ -21,11 +21,13 @@ To prevent unauthorized token extraction, the initiating `origin` must match one
 - The registered **Allowed Origins** for your application's `client_id` / `client_secret` in the Developer Portal.
 - (Default fallback for internal apps) Hostnames ending with `.softbridgelabs.in` or `localhost`.
 
----
+## Integration Guides
 
-## Client Integration Code Sample
+The SoftBridge Accounts SSO flow supports multiple platforms. Choose the guide for your target platform below.
 
-Below is an example of how you can implement the login popup and message listener in your React or Vanilla JavaScript application:
+### 1. Web Integration
+
+For standard web applications (React, Vue, Vanilla JS), the recommended approach is to use a popup window and the `window.postMessage` API.
 
 ```javascript
 // 1. Define the Accounts URL and your Client credentials
@@ -78,11 +80,44 @@ function handleSuccessfulLogin(authData) {
 }
 ```
 
+### 2. Desktop Integration
+
+For Desktop applications (e.g., Electron, Tauri, Qt), the recommended approach is to use the `redirect_uri` query parameter combined with a local loopback server or custom URI scheme.
+
+1. Register your app in the Developer Portal and add a **Redirect URI** (e.g., `http://127.0.0.1:8080/callback` or `myapp://oauth/callback`).
+2. Open the system default browser to the SoftBridge login page:
+   `https://accounts.softbridgelabs.in/login/popup?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&redirect_uri=<YOUR_REDIRECT_URI>`
+3. After successful login, the SoftBridge server will redirect the browser to your `redirect_uri`, appending the `idToken` and `user` data as query parameters.
+4. Your application intercepts the redirect, extracts the tokens from the URL parameters, and completes the login process.
+
+### 3. Android Integration
+
+For native Android applications, use a custom URI scheme combined with Android App Links or Custom Tabs.
+
+1. Register your app in the Developer Portal and add your custom **Redirect URI** (e.g., `in.softbridgelabs.forms://oauth/callback`).
+2. In your Android app, configure an `IntentFilter` in your `AndroidManifest.xml` to intercept the custom scheme:
+   ```xml
+   <intent-filter>
+       <action android:name="android.intent.action.VIEW" />
+       <category android:name="android.intent.category.DEFAULT" />
+       <category android:name="android.intent.category.BROWSABLE" />
+       <data android:scheme="in.softbridgelabs.forms" android:host="oauth" android:path="/callback" />
+   </intent-filter>
+   ```
+3. Launch the login flow using `CustomTabsIntent` or standard `Intent(Intent.ACTION_VIEW)`:
+   ```kotlin
+   val url = "https://accounts.softbridgelabs.in/login/popup?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&redirect_uri=in.softbridgelabs.forms://oauth/callback"
+   val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+   startActivity(intent)
+   ```
+4. When the user completes the login, the browser will automatically redirect to `in.softbridgelabs.forms://oauth/callback?idToken=TOKEN&user=JSON`. 
+5. Your target Activity will receive this Intent. Extract the `idToken` and `user` values from the `intent.data` URI query parameters.
+
 ---
 
 ## Response Payload Structure
 
-The `postMessage` data sent back from the Accounts app has the following JSON structure:
+The authentication data returned by SoftBridge Accounts (whether via `postMessage.data` on Web, or query parameters in Desktop/Android) will have the following structure:
 
 ```json
 {

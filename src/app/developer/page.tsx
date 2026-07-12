@@ -91,10 +91,7 @@ export default function DeveloperPage() {
     if (!redirectInput.trim()) return;
     try {
       const url = new URL(redirectInput.trim());
-      if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-        setError('Redirect URI must start with http:// or https://');
-        return;
-      }
+      // Removed the http/https check to support custom app schemes (e.g. in.softbridgelabs.forms://)
       if (redirectUris.includes(url.href)) {
         setError('Redirect URI already added');
         return;
@@ -103,7 +100,7 @@ export default function DeveloperPage() {
       setRedirectInput('');
       setError('');
     } catch (e) {
-      setError('Invalid Redirect URI format. Ex: https://myapp.com/callback');
+      setError('Invalid Redirect URI format. Ex: https://myapp.com/callback or myapp://callback');
     }
   };
 
