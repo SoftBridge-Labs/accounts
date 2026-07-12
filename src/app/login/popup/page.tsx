@@ -50,20 +50,8 @@ function LoginPopupContent() {
           const res = await softbridgeApi.apps.verify(clientIdParam, clientSecretParam);
           if (res.success && res.app) {
             const app = res.app;
-            const origins = app.allowed_origins || [];
-            let parsedOrigin = '';
-            try {
-              parsedOrigin = new URL(targetOrigin).origin;
-              // For custom schemes (like in.softbridgelabs.forms://), origin might be "null" or retain scheme.
-              if (parsedOrigin === 'null' || !parsedOrigin) {
-                parsedOrigin = targetOrigin;
-              }
-            } catch (e) {
-              parsedOrigin = targetOrigin;
-            }
-
-            const isValid = origins.includes(parsedOrigin);
-            setOriginValid(isValid);
+            // Allow any origin if client credentials are valid
+            setOriginValid(true);
             setTargetHost(app.name);
           } else {
             setOriginValid(false);

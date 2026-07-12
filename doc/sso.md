@@ -5,9 +5,9 @@ This guide explains how external and third-party applications can delegate user 
 ## Overview
 
 The SSO flow is designed to be simple and secure:
-1. Register your application in the **Developer Portal** (`https://accounts.softbridgelabs.in/developer`) to receive a unique `client_id`, `client_secret`, and register your `allowed_origins`.
+1. Register your application in the **Developer Portal** (`https://account.softbridgelabs.in/developer`) to receive a unique `client_id`, `client_secret`, and register your `allowed_origins`.
 2. The client application opens the SoftBridge Accounts login page in a popup window:
-   `https://accounts.softbridgelabs.in/login/popup?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&origin=<CLIENT_ORIGIN>`
+   `https://account.softbridgelabs.in/login/popup?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&origin=<CLIENT_ORIGIN>`
 3. The Accounts app validates the `client_id` and `client_secret` to ensure they are registered and authorized.
 4. The user authenticates (or is automatically detected if they are already logged in).
 5. The Accounts app posts the authentication data back to the client application via `window.opener.postMessage`.
@@ -31,7 +31,7 @@ For standard web applications (React, Vue, Vanilla JS), the recommended approach
 
 ```javascript
 // 1. Define the Accounts URL and your Client credentials
-const ACCOUNTS_URL = "https://accounts.softbridgelabs.in"; // or local dev URL
+const ACCOUNTS_URL = "https://account.softbridgelabs.in"; // or local dev URL
 const CLIENT_ID = "sb_your_client_id_here"; // Obtain from Developer Portal
 const CLIENT_SECRET = "sbsec_your_client_secret_here"; // Obtain from Developer Portal
 
@@ -86,7 +86,7 @@ For Desktop applications (e.g., Electron, Tauri, Qt), the recommended approach i
 
 1. Register your app in the Developer Portal and add a **Redirect URI** (e.g., `http://127.0.0.1:8080/callback` or `myapp://oauth/callback`).
 2. Open the system default browser to the SoftBridge login page:
-   `https://accounts.softbridgelabs.in/login/popup?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&redirect_uri=<YOUR_REDIRECT_URI>`
+   `https://account.softbridgelabs.in/login/popup?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&redirect_uri=<YOUR_REDIRECT_URI>`
 3. After successful login, the SoftBridge server will redirect the browser to your `redirect_uri`, appending the `idToken` and `user` data as query parameters.
 4. Your application intercepts the redirect, extracts the tokens from the URL parameters, and completes the login process.
 
@@ -106,7 +106,7 @@ For native Android applications, use a custom URI scheme combined with Android A
    ```
 3. Launch the login flow using `CustomTabsIntent` or standard `Intent(Intent.ACTION_VIEW)`:
    ```kotlin
-   val url = "https://accounts.softbridgelabs.in/login/popup?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&redirect_uri=in.softbridgelabs.forms://oauth/callback"
+   val url = "https://account.softbridgelabs.in/login/popup?client_id=<CLIENT_ID>&client_secret=<CLIENT_SECRET>&redirect_uri=in.softbridgelabs.forms://oauth/callback"
    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
    startActivity(intent)
    ```

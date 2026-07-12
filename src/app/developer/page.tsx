@@ -188,7 +188,7 @@ export default function DeveloperPage() {
       <div className="page-wrapper">
         <div className="bg-mesh" />
         <div className="container" style={{ paddingBottom: '5rem' }}>
-          
+
           <div style={{ margin: '3rem 0 2rem 0' }}>
             <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '2.5rem', fontWeight: 700, color: 'var(--text-main)' }}>
               Developer Console
@@ -199,7 +199,7 @@ export default function DeveloperPage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'start' }}>
-            
+
             {/* App Registration Form */}
             <div className="glass-card" style={{ padding: '2.5rem', borderRadius: '24px' }}>
               <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.6rem', fontWeight: 600, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -447,11 +447,11 @@ export default function DeveloperPage() {
           {/* SSO Integration Documentation */}
           <div className="glass-card" style={{ marginTop: '4rem', padding: '3rem', borderRadius: '24px', background: '#fff', gridColumn: 'span 2' }}>
             <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
               SSO Integration Guide
             </h2>
             <p style={{ color: 'var(--text-dim)', marginBottom: '2rem', lineHeight: '1.6' }}>
-              Enable secure, passwordless authentication using the SoftBridge popup login flow on your website. 
+              Enable secure, passwordless authentication using the SoftBridge popup login flow on your website.
               Pass both your registered <code>client_id</code> and <code>client_secret</code> to authorize and establish a secure identity session connection.
             </p>
 
@@ -460,7 +460,7 @@ export default function DeveloperPage() {
               Trigger the login popup window by passing your <code>client_id</code>, <code>client_secret</code>, and your website origin:
             </p>
             <pre style={{ background: 'var(--bg-subtle)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-subtle)', overflowX: 'auto', fontSize: '0.875rem', color: '#0f172a', marginBottom: '2rem' }}>
-{`const ACCOUNTS_URL = "https://accounts.softbridgelabs.in";
+              {`const ACCOUNTS_URL = "https://account.softbridgelabs.in";
 const CLIENT_ID = "YOUR_CLIENT_ID"; // Obtain from registered applications list
 const CLIENT_SECRET = "YOUR_CLIENT_SECRET"; // Keep secure and obtain from applications list
 const origin = window.location.origin;
@@ -477,7 +477,7 @@ const popup = window.open(
               Add a message event listener to receive the user's profile and secure credentials:
             </p>
             <pre style={{ background: 'var(--bg-subtle)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-subtle)', overflowX: 'auto', fontSize: '0.875rem', color: '#0f172a', marginBottom: '2rem' }}>
-{`window.addEventListener("message", (event) => {
+              {`window.addEventListener("message", (event) => {
   if (event.origin !== ACCOUNTS_URL) return;
 
   const authData = event.data;
