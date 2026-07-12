@@ -15,6 +15,7 @@ function LoginPopupContent() {
   const { user, profile, loading } = useAuth();
   const searchParams = useSearchParams();
   const originParam = searchParams.get('origin') || '';
+  const redirectUriParam = searchParams.get('redirect_uri') || '';
   // Use .has() to distinguish "not provided" from "provided but empty"
   const clientIdProvided = searchParams.has('client_id');
   const clientIdParam = searchParams.get('client_id') || '';
@@ -26,10 +27,13 @@ function LoginPopupContent() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [targetHost, setTargetHost] = useState('');
   const [originValid, setOriginValid] = useState<boolean | null>(null);
+  const [accountNotFound, setAccountNotFound] = useState(false);
 
   useEffect(() => {
     async function verifyAndSetup() {
-      if (!originParam) {
+      const targetOrigin = originParam || redirectUriParam;
+
+      if (!targetOrigin) {
         setOriginValid(false);
         return;
       }
@@ -49,9 +53,13 @@ function LoginPopupContent() {
             const origins = app.allowed_origins || [];
             let parsedOrigin = '';
             try {
-              parsedOrigin = new URL(originParam).origin;
+              parsedOrigin = new URL(targetOrigin).origin;
+              // For custom schemes (like in.softbridgelabs.forms://), origin might be "null" or retain scheme.
+              if (parsedOrigin === 'null' || !parsedOrigin) {
+                parsedOrigin = targetOrigin;
+              }
             } catch (e) {
-              parsedOrigin = originParam;
+              parsedOrigin = targetOrigin;
             }
 
             const isValid = origins.includes(parsedOrigin);
@@ -66,14 +74,14 @@ function LoginPopupContent() {
         }
       } else {
         // Case 2: no client_id at all → internal SoftBridge origins only
-        const isValid = validateOrigin(originParam);
+        const isValid = validateOrigin(targetOrigin);
         setOriginValid(isValid);
         if (isValid) {
           try {
-            const url = new URL(originParam);
-            setTargetHost(url.host);
+            const url = new URL(targetOrigin);
+            setTargetHost(url.host || targetOrigin);
           } catch (e) {
-            setTargetHost(originParam);
+            setTargetHost(targetOrigin);
           }
         }
       }
@@ -85,7 +93,7 @@ function LoginPopupContent() {
   // If already authenticated and origin is valid, send data and close popup
   useEffect(() => {
     if (!loading && user && originValid) {
-      if (typeof window !== 'undefined' && window.opener) {
+      if (typeof window !== 'undefined' && (window.opener || redirectUriParam)) {
         const sendTokenAndClose = async () => {
           try {
             const idToken = await user.getIdToken();
@@ -99,8 +107,18 @@ function LoginPopupContent() {
               },
               idToken,
             };
-            window.opener.postMessage(payload, originParam);
-            window.close();
+            if (redirectUriParam) {
+              // Redirect for native app SSO
+              const redirectUrl = new URL(redirectUriParam);
+              redirectUrl.searchParams.set('idToken', idToken);
+              redirectUrl.searchParams.set('user', JSON.stringify(payload.user));
+              window.location.href = redirectUrl.toString();
+              return;
+            }
+            if (typeof window !== 'undefined' && window.opener) {
+              window.opener.postMessage(payload, originParam);
+              window.close();
+            }
           } catch (err) {
             console.error("Token generation failed", err);
             setError("Failed to retrieve secure access key token.");
@@ -109,7 +127,7 @@ function LoginPopupContent() {
         sendTokenAndClose();
       }
     }
-  }, [loading, user, originValid, profile, originParam]);
+  }, [loading, user, originValid, profile, originParam, redirectUriParam]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,6 +168,15 @@ function LoginPopupContent() {
         idToken,
       };
 
+      if (redirectUriParam) {
+        // Redirect for native app SSO
+        const redirectUrl = new URL(redirectUriParam);
+        redirectUrl.searchParams.set('idToken', idToken);
+        redirectUrl.searchParams.set('user', JSON.stringify(payload.user));
+        window.location.href = redirectUrl.toString();
+        return;
+      }
+
       if (typeof window !== 'undefined' && window.opener) {
         window.opener.postMessage(payload, originParam);
         window.close();
@@ -161,6 +188,11 @@ function LoginPopupContent() {
       const code = err?.code || '';
       if (code.includes('user-not-found') || code.includes('wrong-password') || code.includes('invalid-credential')) {
         customError = 'Invalid email or password.';
+        if (code.includes('user-not-found') || code.includes('invalid-credential')) {
+          setAccountNotFound(true);
+        }
+      } else {
+        setAccountNotFound(false);
       }
       setError(customError);
     } finally {
@@ -176,7 +208,7 @@ function LoginPopupContent() {
     return <InvalidOriginView />;
   }
 
-  if (typeof window !== 'undefined' && !window.opener) {
+  if (typeof window !== 'undefined' && !window.opener && !redirectUriParam) {
     return <NoOpenerView />;
   }
 
@@ -198,6 +230,7 @@ function LoginPopupContent() {
             error={error}
             loginLoading={loginLoading}
             targetHost={targetHost}
+            accountNotFound={accountNotFound}
           />
         )}
       </div>

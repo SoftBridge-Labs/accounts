@@ -9,6 +9,7 @@ interface LoginFormProps {
   error: string;
   loginLoading: boolean;
   targetHost: string;
+  accountNotFound?: boolean;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -20,6 +21,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   error,
   loginLoading,
   targetHost,
+  accountNotFound,
 }) => {
   return (
     <div className="glass-card" style={{ padding: '3rem 2rem', background: '#fff', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', border: '1px solid var(--border-subtle)' }}>
@@ -72,6 +74,29 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <button type="submit" disabled={loginLoading} className="premium-btn" style={{ width: '100%', borderRadius: '12px', padding: '0.9rem', fontSize: '0.9rem', fontWeight: 700 }}>
           {loginLoading ? 'Authenticating...' : 'Authorize Login'}
         </button>
+
+        {accountNotFound && (
+          <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
+            <p style={{ color: 'var(--text-dim)', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Don't have an account?</p>
+            <button 
+              type="button" 
+              onClick={() => window.open('/signup', '_blank')}
+              style={{ 
+                width: '100%', 
+                borderRadius: '12px', 
+                padding: '0.9rem', 
+                fontSize: '0.9rem', 
+                fontWeight: 700,
+                background: 'transparent',
+                border: '1px solid var(--primary)',
+                color: 'var(--primary)',
+                cursor: 'pointer'
+              }}
+            >
+              Create New Account
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );
