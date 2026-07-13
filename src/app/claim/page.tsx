@@ -32,13 +32,16 @@ function ClaimPageContent() {
     fetchMeta();
   }, [loading, user, router]);
 
-  if (loading || !user) return (
+  const isProfileLoading = user && !profile;
+  if (loading || isProfileLoading || !user) return (
     <div className="flex-center" style={{ height: '100vh' }}>
        <div className="bg-mesh" />
-       <div style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }}></div>
+       <div className="spin-fast" style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%' }}></div>
        <p style={{ color: 'var(--text-dim)', marginTop: '1.5rem', fontWeight: 600 }}>CHECKING ELIGIBILITY...</p>
     </div>
   );
+
+  const notEligible = profile?.premium || profile?.premium_global || profile?.trial_redeemed;
 
   const activateTrial = async (autopay: boolean) => {
     setProcessing(true);
@@ -51,9 +54,9 @@ function ClaimPageContent() {
         const planId = process.env.NEXT_PUBLIC_RAZORPAY_PRO_PLAN_ID || 'plan_123abc';
         // Set the start date 30 days from now (in seconds)
         const startAt = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60);
-        const subRes = await softbridgeApi.billing.createSubscription({ planId, totalCount: 12, startAt });
+        const subRes = await softbridgeApi.billing.createSubscription({ planId, totalCount: 12, startAt, uid: user.uid });
         if (!subRes || !subRes.subscription || !subRes.subscription.id) {
-           throw new Error("Failed to create subscription on backend.");
+           throw new Error(subRes?.message || "Failed to create subscription on backend.");
         }
 
         // Record checkout intent
@@ -153,6 +156,13 @@ function ClaimPageContent() {
             <h3 style={{ color: 'var(--success)', fontSize: '1.5rem' }}>🎉 {success}</h3>
             <p style={{ marginTop: '0.5rem', color: 'var(--text-dim)' }}>Redirecting to your dashboard...</p>
           </div>
+        ) : notEligible ? (
+          <div className="glass-card animate-in" style={{ marginBottom: '4rem', borderColor: 'var(--error)', textAlign: 'center', background: 'rgba(239, 68, 68, 0.05)' }}>
+            <h3 style={{ color: 'var(--error)', fontSize: '1.5rem' }}>Not Eligible for Trial</h3>
+            <p style={{ marginTop: '0.5rem', color: 'var(--text-dim)' }}>
+              You are already on a premium plan or have previously redeemed a trial.
+            </p>
+          </div>
         ) : (
           <div className="grid-auto animate-in stagger-1" style={{ gap: '2rem' }}>
             
@@ -245,7 +255,7 @@ export default function ClaimPage() {
     <Suspense fallback={
       <div className="flex-center" style={{ height: '100vh' }}>
         <div className="bg-mesh" />
-        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }}></div>
+        <div className="spin-fast" style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%' }}></div>
       </div>
     }>
       <ClaimPageContent />

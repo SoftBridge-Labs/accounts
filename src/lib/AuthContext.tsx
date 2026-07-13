@@ -83,9 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           } catch {
             console.error("Identity Node synchronization stalled.");
+            setProfile({});
           }
         } else {
           console.error("Identity Hub accessibility failure.");
+          setProfile({});
         }
       }
     } else {

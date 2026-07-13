@@ -96,9 +96,11 @@ function LoginPopupContent() {
               idToken,
             };
             if (redirectUriParam) {
-              // Redirect for native app SSO
+              // Redirect for native app SSO — include refreshToken so the app
+              // can silently refresh the idToken after its 1-hour expiry.
               const redirectUrl = new URL(redirectUriParam);
               redirectUrl.searchParams.set('idToken', idToken);
+              redirectUrl.searchParams.set('refreshToken', user.refreshToken || '');
               redirectUrl.searchParams.set('user', JSON.stringify(payload.user));
               window.location.href = redirectUrl.toString();
               return;
@@ -157,9 +159,11 @@ function LoginPopupContent() {
       };
 
       if (redirectUriParam) {
-        // Redirect for native app SSO
+        // Redirect for native app SSO — include refreshToken so the app
+        // can silently refresh the idToken after its 1-hour expiry.
         const redirectUrl = new URL(redirectUriParam);
         redirectUrl.searchParams.set('idToken', idToken);
+        redirectUrl.searchParams.set('refreshToken', loggedUser.refreshToken || '');
         redirectUrl.searchParams.set('user', JSON.stringify(payload.user));
         window.location.href = redirectUrl.toString();
         return;

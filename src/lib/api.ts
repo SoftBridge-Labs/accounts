@@ -1,6 +1,6 @@
 function getBaseUrl() {
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:4000';
+    return 'https://api.softbridgelabs.in';
   }
   return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.softbridgelabs.in';
 }
@@ -298,7 +298,7 @@ export const softbridgeApi = {
   billing: {
     createOneTimeOrder: (data: { amount: number; currency?: string; receipt?: string }) =>
       apiFetch('/billing/one-time', { method: 'POST', body: JSON.stringify(data) }),
-    createSubscription: (data: { planId: string; totalCount?: number; startAt?: number }) =>
+    createSubscription: (data: { planId: string; totalCount?: number; startAt?: number; uid?: string }) =>
       apiFetch('/billing/subscription', { method: 'POST', body: JSON.stringify(data) }),
     fetchSubscription: (id: string) =>
       apiFetch(`/billing/subscription/${id}`, { method: 'GET' }),

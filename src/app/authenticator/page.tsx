@@ -166,7 +166,8 @@ export default function AuthenticatorPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (loading || (fetching && isPremium && entries.length === 0)) return (
+  const isProfileLoading = user && !profile;
+  if (loading || isProfileLoading || (fetching && isPremium && entries.length === 0)) return (
     <div className="flex-center" style={{ height: '100vh', flexDirection: 'column', gap: '1.5rem' }}>
        <div className="bg-mesh" />
        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }}></div>

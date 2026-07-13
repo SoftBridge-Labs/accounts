@@ -383,6 +383,10 @@ body {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+@keyframes spin-fast {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
 @keyframes drift {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }

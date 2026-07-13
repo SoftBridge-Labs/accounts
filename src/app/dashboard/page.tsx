@@ -34,10 +34,11 @@ function DashboardContent() {
     }
   }, [loading, user, router]);
 
-  if (loading) return (
+  const isProfileLoading = user && !profile;
+  if (loading || isProfileLoading) return (
     <div className="flex-center" style={{ height: '100vh', gap: '1.5rem', flexDirection: 'column' }}>
        <div className="bg-mesh" />
-       <div style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin-fast 0.8s linear infinite' }}></div>
+       <div className="spin-fast" style={{ width: '48px', height: '48px', border: '3px solid rgba(0,0,0,0.05)', borderTopColor: 'var(--primary)', borderRadius: '50%' }}></div>
        <p style={{ color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '0.1em' }}>LOADING YOUR ACCOUNT...</p>
     </div>
   );
